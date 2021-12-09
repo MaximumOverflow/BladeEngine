@@ -22,6 +22,9 @@ public abstract class Shader
 				Debug.LogError("Could not load shader, no graphics api is currently being used.");
 				return null;
 
+			case Graphics.Api.OpenGL: 
+				return OpenGL.Shader.Create(File.ReadAllText(path));
+
 			default:
 				Debug.LogError($"Could not load shader, {Graphics.CurrentApi} is not currently supported.");
 				return null;
@@ -35,6 +38,9 @@ public abstract class Shader
 			case Graphics.Api.None:
 				Debug.LogError("Could not load shader, no graphics api is currently being used.");
 				return null;
+
+			case Graphics.Api.OpenGL: 
+				return OpenGL.Shader.Create(source);
 
 			default:
 				Debug.LogError($"Could not load shader, {Graphics.CurrentApi} is not currently supported.");

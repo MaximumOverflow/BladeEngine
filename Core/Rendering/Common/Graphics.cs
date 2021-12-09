@@ -19,6 +19,7 @@ public static class Graphics
 		switch (settings.Api)
 		{
 			case Api.None: return false;
+			case Api.OpenGL: return OpenGL.OpenGL.Initialize(settings);
 			default: throw new NotImplementedException();
 		}
 	}
@@ -28,6 +29,7 @@ public static class Graphics
 		switch (CurrentApi)
 		{
 			case Api.None: return true;
+			case Api.OpenGL: return OpenGL.OpenGL.Terminate();
 			default: throw new NotImplementedException();
 		}
 	}
@@ -53,7 +55,7 @@ public static class Graphics
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void FlushRenderBuffer() 
 		=> Current.FlushRenderBuffer();
-
+	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void DrawMesh(Mesh mesh, Material material, in Matrix4x4 transform) 
 		=> Current.DrawMesh(mesh, material, transform);

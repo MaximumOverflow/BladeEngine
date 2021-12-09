@@ -19,6 +19,9 @@ public abstract class Mesh : IDisposable
 			case Graphics.Api.None:
 				Debug.LogError("Could not create mesh, no graphics api is currently being used.");
 				return null;
+			
+			case Graphics.Api.OpenGL:
+				return new OpenGL.Mesh();
 
 			default:
 				Debug.LogError($"Could not create mesh, {Graphics.CurrentApi} is not currently supported.");
@@ -39,6 +42,9 @@ public abstract class Mesh : IDisposable
 			case Graphics.Api.None:
 				Debug.LogError("Could not load mesh, no graphics api is currently being used.");
 				return null;
+			
+			case Graphics.Api.OpenGL:
+				return OpenGL.Mesh.FromFile(path);
 
 			default:
 				Debug.LogError($"Could not load mesh, {Graphics.CurrentApi} is not currently supported.");
