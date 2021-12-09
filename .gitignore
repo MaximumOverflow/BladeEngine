@@ -1,0 +1,9 @@
+﻿.idea/
+ECS/bin/
+ECS/obj/
+Core/bin/
+Core/obj/
+Editor/bin/
+Editor/obj/
+Extensions/bin/
+Extensions/obj/

@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>BladeEngine.Editor</AssemblyName>
+        <RootNamespace>BladeEngine.Editor</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationIcon>Resources\Icons\icon_light.ico</ApplicationIcon>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="0.10.10" />
+      <PackageReference Include="Avalonia.Desktop" Version="0.10.10" />
+      <PackageReference Include="Avalonia.Diagnostics" Version="0.10.10" />
+      <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.10" />
+      <PackageReference Include="Microsoft.Build" Version="17.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Avalonia\App.axaml.cs">
+            <DependentUpon>App.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Avalonia\AvaloniaApplication.cs">
+            <DependentUpon>App.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Avalonia\EditorWindow.axaml.cs">
+            <DependentUpon>EditorWindow.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Avalonia\FileExplorerData.cs">
+            <DependentUpon>FileExplorer.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Avalonia\ProjectSettings.axaml.cs">
+          <DependentUpon>ProjectSettings.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AvaloniaResource Include="Resources\Icons\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaXaml Update="Avalonia\FileEntry.axaml">
+        <DependentUpon>FileExplorer.axaml</DependentUpon>
+      </AvaloniaXaml>
+    </ItemGroup>
+
+</Project>

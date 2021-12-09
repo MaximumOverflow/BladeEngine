@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>BladeEngine.Core</RootNamespace>
+        <AssemblyName>BladeEngine.Core</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="2.10.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+      <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+      <PackageReference Include="Silk.NET.Assimp" Version="2.10.1" />
+      <PackageReference Include="Silk.NET.Core" Version="2.10.1" />
+      <PackageReference Include="Silk.NET.GLFW" Version="2.10.1" />
+      <PackageReference Include="Silk.NET.OpenGL" Version="2.10.1" />
+      <PackageReference Include="Silk.NET.Vulkan" Version="2.10.1" />
+      <PackageReference Include="Silk.NET.Windowing" Version="2.10.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Extensions\Extensions.csproj" />
+    </ItemGroup>
+
+</Project>
