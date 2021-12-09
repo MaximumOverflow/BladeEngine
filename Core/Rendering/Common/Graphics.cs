@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Numerics;
-
-namespace BladeEngine.Core.Rendering.Common;
+﻿namespace BladeEngine.Core.Rendering.Common;
 
 public static class Graphics
 {

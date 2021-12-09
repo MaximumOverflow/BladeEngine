@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 
 namespace BladeEngine.Core.Rendering.OpenGL;
 

@@ -1,9 +1,5 @@
-﻿using BladeEngine.Core.Rendering.Common;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using Silk.NET.Windowing;
+﻿using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
-using System.Numerics;
 
 namespace BladeEngine.Core.Rendering.OpenGL;
 

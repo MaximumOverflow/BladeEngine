@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Numerics;
-using Silk.NET.Assimp;
+﻿using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 
 namespace BladeEngine.Core.Rendering.OpenGL;

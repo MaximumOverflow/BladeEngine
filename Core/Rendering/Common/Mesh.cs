@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using File = System.IO.File;
+﻿using File = System.IO.File;
 
 namespace BladeEngine.Core.Rendering.Common;
 
