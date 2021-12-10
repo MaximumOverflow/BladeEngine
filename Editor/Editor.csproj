@@ -42,6 +42,12 @@
           <DependentUpon>ProjectSettings.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
+        <Compile Update="UI\App.axaml.cs">
+          <DependentUpon>App.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="UI\EditorWindow.axaml.cs">
+          <DependentUpon>EditorWindow.axaml</DependentUpon>
+        </Compile>
     </ItemGroup>
     
     <ItemGroup>
