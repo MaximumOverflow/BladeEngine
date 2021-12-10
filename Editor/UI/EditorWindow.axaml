@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:rendering="clr-namespace:BladeEngine.Editor.UI.Rendering"
+        xmlns:ui="clr-namespace:BladeEngine.Editor.UI"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="BladeEngine.Editor.UI.EditorWindow"
         Title="Blade Editor">
@@ -69,7 +70,7 @@
                <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
                <TabControl Grid.Row="2">
                    <TabItem Header="Console">
-                       
+                       <ui:Console/>
                    </TabItem>
                </TabControl>
            </Grid>

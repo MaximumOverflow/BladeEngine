@@ -48,6 +48,9 @@
         <Compile Update="UI\EditorWindow.axaml.cs">
           <DependentUpon>EditorWindow.axaml</DependentUpon>
         </Compile>
+        <Compile Update="UI\Console.axaml.cs">
+          <DependentUpon>Console.axaml</DependentUpon>
+        </Compile>
     </ItemGroup>
     
     <ItemGroup>
