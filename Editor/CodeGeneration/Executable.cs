@@ -27,7 +27,6 @@ public sealed class Executable
 		general.AddProperty("AllowUnsafeBlocks", "true");
 		
 		var build = exeProj.AddPropertyGroup();
-		build.Label = "BuildSettings";
 		build.AddProperty("PlatformTarget", _project.Architecture.ToString());
 
 		var silkVer = EnvironmentVariables.SilkVersion.ToString();
@@ -38,7 +37,6 @@ public sealed class Executable
 		include.AddItem("PackageReference", "Silk.NET.GLFW").AddMetadata("Version", silkVer);
 		include.AddItem("PackageReference", "Silk.NET.Windowing").AddMetadata("Version", silkVer);
 		var core = include.AddItem("Reference", "BladeEngine.Core");
-		core.Label = "EngineAssembly";
 		core.AddMetadata("HintPath", $"{EnvironmentVariables.EngineAssemblyPath}");
 		
 		var tmpDir = new DirectoryInfo(Path.Combine(_project.Directory.FullName, ".build"));

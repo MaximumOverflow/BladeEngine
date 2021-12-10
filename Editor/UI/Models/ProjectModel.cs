@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using BladeEngine.Extensions;
+using ReactiveUI;
 
 namespace BladeEngine.Editor.UI.Models;
 
@@ -45,6 +46,21 @@ public sealed class ProjectModel : ReactiveObject
 	{
 		get => Project.BuildType;
 		set { Project.BuildType = value; this.RaisePropertyChanged(nameof(BuildType)); }
+	}
+
+	public bool Validate()
+	{
+		if (string.IsNullOrWhiteSpace(Name) 
+		||	string.IsNullOrWhiteSpace(AssemblyName)
+		||	string.IsNullOrWhiteSpace(RootNamespace))
+			return false;
+		
+		if (!Project.NameRegex.IsExactMatch(Name) 
+		||	!Project.NamespaceRegex.IsExactMatch(AssemblyName) 
+		||	!Project.NamespaceRegex.IsExactMatch(RootNamespace))
+			return false;
+
+		return true;
 	}
 
 	public static implicit operator Project(ProjectModel m) => m.Project;

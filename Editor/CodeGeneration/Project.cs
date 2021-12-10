@@ -22,6 +22,9 @@ public enum BuildType
 
 public class Project
 {
+	internal static readonly Regex NameRegex = new("[a-zA-Z][a-zA-Z_0-9]*", RegexOptions.Compiled);
+	internal static readonly Regex NamespaceRegex = new("[a-zA-Z][a-zA-Z_0-9]*(\\.[a-zA-Z][a-zA-Z_0-9]*)*", RegexOptions.Compiled);
+	
 	private FileInfo _file;
 	public readonly DirectoryInfo Directory;
 	private readonly ProjectRootElement _root;
@@ -152,10 +155,10 @@ public class Project
 	{
 		if (Directory.Name != Name)
 		{
+			_file.Delete();
 			var prev = new DirectoryInfo(Directory.FullName);
 			Directory.MoveTo(Path.Combine(Directory.Parent!.FullName, Name));
 			if(prev.Exists) prev.Delete();
-			_file.Delete();
 		}
 
 		var path = Path.Combine(Directory.FullName, Name + ".csproj");

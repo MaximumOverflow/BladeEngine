@@ -30,9 +30,6 @@ public class NewProjectDialog : Window
 		#endif
 	}
 
-	private static readonly Regex NameRegex = new("[a-zA-Z][a-zA-Z_0-9]*", RegexOptions.Compiled);
-	private static readonly Regex NamespaceRegex = new("[a-zA-Z][a-zA-Z_0-9]*(\\.[a-zA-Z][a-zA-Z_0-9]*)*", RegexOptions.Compiled);
-
 	private void CheckInput(object? sender, KeyEventArgs e) => Check(null, null);
 
 	private bool Check(object? sender, RoutedEventArgs? e)
@@ -43,9 +40,9 @@ public class NewProjectDialog : Window
 		
 		if (!Directory.Exists(path)) errors += "Directory does not exist.\n";
 		if (Directory.Exists(projPath)) errors += "Project directory already exists.\n";
-		if (_name.Text?.Length == 0 || !NameRegex.IsExactMatch(_name.Text)) errors += "Invalid name.\n";
-		if (_assembly.Text?.Length == 0 || !NamespaceRegex.IsExactMatch(_assembly.Text)) errors += "Invalid assembly name.\n";
-		if (_namespace.Text?.Length == 0 || !NamespaceRegex.IsExactMatch(_namespace.Text)) errors += "Invalid root namespace.\n";
+		if (_name.Text?.Length == 0 || !Project.NameRegex.IsExactMatch(_name.Text)) errors += "Invalid name.\n";
+		if (_assembly.Text?.Length == 0 || !Project.NamespaceRegex.IsExactMatch(_assembly.Text)) errors += "Invalid assembly name.\n";
+		if (_namespace.Text?.Length == 0 || !Project.NamespaceRegex.IsExactMatch(_namespace.Text)) errors += "Invalid root namespace.\n";
 		_create.IsEnabled = string.IsNullOrEmpty(errors);
 		_errors.Text = errors;
 		return _create.IsEnabled;

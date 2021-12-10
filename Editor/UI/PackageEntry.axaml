@@ -10,7 +10,7 @@
         <TextBlock  Grid.Column="1" Name="Title" Text="Package title" VerticalAlignment="Center" FontSize="32" Margin="16"/>
         <StackPanel Grid.Column="2" Spacing="16" Orientation="Horizontal">
             <ComboBox Name="Versions" VerticalAlignment="Center" MinWidth="128"/>
-            <Button Name="Action">Install</Button>
+            <Button Name="Action" IsEnabled="False">Install</Button>
         </StackPanel>
     </Grid>
 </UserControl>
