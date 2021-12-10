@@ -89,7 +89,6 @@ public unsafe class OpenGL : GraphicsApi
 
 	public override void SwapBuffers()
 	{
-		Window.DoEvents();
 		Window.SwapBuffers();
 	}
 
