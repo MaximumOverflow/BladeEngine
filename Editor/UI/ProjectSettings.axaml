@@ -29,17 +29,18 @@
         </TabItem>
         
         <TabItem Header="Packages">
-            <StackPanel>
-                <Grid ColumnDefinitions="*, Auto" >
-                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="InputElement_OnKeyUp"/>
-                    <CheckBox Grid.Column="1" Margin="8, 0, 0, 0" IsEnabled="False">Installed only</CheckBox>
+            <Grid RowDefinitions="Auto, *">
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" >
+                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="SearchPackage"/>
+                    <CheckBox Grid.Column="1" Name="Installed" Margin="8, 0, 0, 0"
+                    Checked="ToggleInstalledPackages" Unchecked="ToggleInstalledPackages">
+                        Installed only
+                    </CheckBox>
                 </Grid>
-                <ScrollViewer>
-                    <StackPanel Name="PackageList">
-                        
-                    </StackPanel>
+                <ScrollViewer  Grid.Row="1">
+                    <StackPanel Name="PackageList"/>
                 </ScrollViewer>
-            </StackPanel>
+            </Grid>
         </TabItem>
         
         <TabItem Header="Build settings">
