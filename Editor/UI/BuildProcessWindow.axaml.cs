@@ -26,7 +26,7 @@ public class BuildProcessWindow : Window
 
 	public async Task<int> Open(Window window, Project project)
 	{
-		Title = $"Building {project.Name}...";
+		Title = $"Building {project.AssemblyName}...";
 		
 		Show(window);
 		var exe = new Executable(project);

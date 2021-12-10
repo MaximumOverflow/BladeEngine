@@ -3,18 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="800" Height="450"
         x:Class="BladeEngine.Editor.UI.ProjectSettings"
-        Title="ProjectSettings">
+        Width="800" Height="450" Title="ProjectSettings">
     <TabControl Padding="8">
         <TabItem Header="General">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Spacing="8">
-                    <Grid ColumnDefinitions="128, *">
-                        <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Text="{Binding Name}"/>
-                    </Grid>
-                
                     <Grid ColumnDefinitions="128, *">
                         <TextBlock Grid.Column="0" Text="Assembly name" VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1" Text="{Binding AssemblyName}"/>

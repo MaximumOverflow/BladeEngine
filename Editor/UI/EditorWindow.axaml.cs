@@ -1,10 +1,10 @@
 ﻿using Window = Avalonia.Controls.Window;
+using BladeEngine.Editor.UI.Rendering;
 using BladeEngine.Editor.UI.Models;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using Avalonia;
-using BladeEngine.Editor.UI.Rendering;
 
 namespace BladeEngine.Editor.UI;
 
@@ -32,7 +32,7 @@ public sealed class EditorWindow : Window
 		if(project is null) return;
 		
 		((EditorModel) DataContext!).ProjectModel = new ProjectModel(project);
-		Title = $"{project.Name} - Blade - {Graphics.CurrentApi}";
+		Title = $"{project.AssemblyName} - Blade - {Graphics.CurrentApi}";
 	}
 
 	private async void OpenProject(object? sender, RoutedEventArgs e)
@@ -45,7 +45,7 @@ public sealed class EditorWindow : Window
 
 		var project = new Project(new FileInfo(path[0]));
 		((EditorModel) DataContext!).ProjectModel = new ProjectModel(project);
-		Title = $"{project.Name} - Blade - {Graphics.CurrentApi}";
+		Title = $"{project.AssemblyName} - Blade - {Graphics.CurrentApi}";
 		Debug.Log("Opened project '{0}'", path);
 	}
 	

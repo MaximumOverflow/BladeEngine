@@ -13,7 +13,7 @@
             <Button Grid.Column="2" Margin="8 0 0,0" Click="Browse">Browse</Button>
         </Grid>
         <Grid ColumnDefinitions="128, *">
-            <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="0" Text="Subdirectory" VerticalAlignment="Center"/>
             <TextBox Grid.Column="1" Name="Name" KeyUp="CheckInput"/>
         </Grid>
                 

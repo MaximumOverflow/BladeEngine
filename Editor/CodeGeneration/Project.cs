@@ -26,10 +26,9 @@ public class Project
 {
 	internal static readonly Regex NameRegex = new("[a-zA-Z][a-zA-Z_0-9]*", RegexOptions.Compiled);
 	internal static readonly Regex NamespaceRegex = new("[a-zA-Z][a-zA-Z_0-9]*(\\.[a-zA-Z][a-zA-Z_0-9]*)*", RegexOptions.Compiled);
-	
-	private FileInfo _file;
+
 	private bool _packagesEdited;
-	public readonly DirectoryInfo Directory;
+	public readonly FileInfo File;
 	private readonly ProjectRootElement _root;
 	private readonly ProjectItemGroupElement _includes;
 	private readonly Dictionary<string, NuGetVersion?> _packages;
@@ -42,9 +41,7 @@ public class Project
 	{
 		if (!file.Exists) throw new FileNotFoundException("Could not open project.", file.FullName);
 		
-		_file = file;
-		Directory = file.Directory!;
-		Name = file.Name[..file.Name.LastIndexOf('.')];
+		File = file;
 		_root = ProjectRootElement.Open(file.FullName)!;
 		
 		_properties = new Dictionary<string, ProjectPropertyElement>();
@@ -76,7 +73,7 @@ public class Project
 
 		if (EngineAssemblyPath != EnvironmentVariables.EngineAssemblyPath)
 		{
-			Debug.LogWarning($"Project '{Name}' was using an outdated engine assembly path. The path has been updated.");
+			Debug.LogWarning($"Project was using an outdated engine assembly path. The path has been updated.");
 			EngineAssemblyPath = EnvironmentVariables.EngineAssemblyPath;
 			Save();
 		}
@@ -133,9 +130,7 @@ public class Project
 	#endregion
 
 	#region Properties
-
-	public string Name { get; set; }
-
+	
 	public IReadOnlyDictionary<string, NuGetVersion?> Packages => _packages;
 	public IReadOnlyDictionary<string, ProjectItemElement> Items => _items;
 	public IReadOnlyDictionary<string, ProjectPropertyElement> Properties => _properties;
@@ -196,23 +191,14 @@ public class Project
 
 	public void Save()
 	{
-		if (Directory.Name != Name)
-		{
-			_file.Delete();
-			var prev = new DirectoryInfo(Directory.FullName);
-			Directory.MoveTo(Path.Combine(Directory.Parent!.FullName, Name));
-			if(prev.Exists) prev.Delete();
-		}
-
-		var path = Path.Combine(Directory.FullName, Name + ".csproj");
+		var path = Path.Combine(File.FullName);
 		_root.Save(path);
-		_file = new FileInfo(path);
 
 		if (_packagesEdited)
 		{
 			Process.Start(new ProcessStartInfo("dotnet", "restore")
 			{
-				WorkingDirectory = Directory.FullName, 
+				WorkingDirectory = File.Directory!.FullName, 
 				CreateNoWindow = false, UseShellExecute = false,
 			})!.WaitForExit();
 			_packagesEdited = false;

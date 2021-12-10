@@ -32,16 +32,16 @@ public sealed class Executable
 		var silkVer = EnvironmentVariables.SilkVersion.ToString();
 		var include = exeProj.AddItemGroup();
 		include.Label = "Packages";
-		include.AddItem("ProjectReference", $"../{_project.Name}.csproj");
+		include.AddItem("ProjectReference", $"../{_project.AssemblyName}.csproj");
 		include.AddItem("PackageReference", "Silk.NET.Core").AddMetadata("Version", silkVer);
 		include.AddItem("PackageReference", "Silk.NET.GLFW").AddMetadata("Version", silkVer);
 		include.AddItem("PackageReference", "Silk.NET.Windowing").AddMetadata("Version", silkVer);
 		var core = include.AddItem("Reference", "BladeEngine.Core");
 		core.AddMetadata("HintPath", $"{EnvironmentVariables.EngineAssemblyPath}");
 		
-		var tmpDir = new DirectoryInfo(Path.Combine(_project.Directory.FullName, ".build"));
+		var tmpDir = new DirectoryInfo(Path.Combine(_project.File.Directory!.FullName, ".build"));
 		tmpDir.Create(); tmpDir.Attributes |= FileAttributes.Hidden;
-		exeProj.Save(Path.Combine(tmpDir.FullName, $"{_project.Name}.csproj"));
+		exeProj.Save(Path.Combine(tmpDir.FullName, $"{_project.AssemblyName}.csproj"));
 
 		#endregion
 
@@ -52,7 +52,7 @@ public sealed class Executable
 		#endregion
 
 		consoleOutput?.Invoke("Starting MSBuild...");
-		var buildPath = Path.Combine(_project.Directory.FullName, "Build");
+		var buildPath = Path.Combine(_project.File.Directory!.FullName, "Build");
 		var dotnet = Process.Start(new ProcessStartInfo("dotnet", $"build -o {buildPath}")
 		{
 			WorkingDirectory = tmpDir.FullName, UseShellExecute = false, CreateNoWindow = true,
@@ -69,7 +69,7 @@ public sealed class Executable
 		await dotnet.WaitForExitAsync();
 		// tmpDir.Delete(true);
 		
-		consoleOutput?.Invoke($"Generated executable at '{Path.Combine(buildPath, $"{_project.Name}_build.exe")}'");
+		consoleOutput?.Invoke($"Generated executable at '{Path.Combine(buildPath, $"{_project.AssemblyName}_build.exe")}'");
 		return dotnet.ExitCode;
 	}
 

@@ -12,12 +12,6 @@ public sealed class ProjectModel : ReactiveObject
 		Project = project;
 	}
 
-	public string Name
-	{
-		get => Project.Name;
-		set { Project.Name = value; this.RaisePropertyChanged(nameof(Name)); }
-	}
-	
 	public string AssemblyName
 	{
 		get => Project.AssemblyName;
@@ -50,14 +44,10 @@ public sealed class ProjectModel : ReactiveObject
 
 	public bool Validate()
 	{
-		if (string.IsNullOrWhiteSpace(Name) 
-		||	string.IsNullOrWhiteSpace(AssemblyName)
-		||	string.IsNullOrWhiteSpace(RootNamespace))
+		if (string.IsNullOrWhiteSpace(AssemblyName) || string.IsNullOrWhiteSpace(RootNamespace))
 			return false;
 		
-		if (!Project.NameRegex.IsExactMatch(Name) 
-		||	!Project.NamespaceRegex.IsExactMatch(AssemblyName) 
-		||	!Project.NamespaceRegex.IsExactMatch(RootNamespace))
+		if (!Project.NamespaceRegex.IsExactMatch(AssemblyName) || !Project.NamespaceRegex.IsExactMatch(RootNamespace))
 			return false;
 
 		return true;
