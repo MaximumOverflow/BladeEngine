@@ -8,3 +8,5 @@ global using System.Diagnostics;
 global using System.Numerics;
 
 global using Debug = BladeEngine.Core.Debug;
+global using Architecture = BladeEngine.Editor.CodeGeneration.Architecture;
+global using OperatingSystem = BladeEngine.Editor.CodeGeneration.OperatingSystem;

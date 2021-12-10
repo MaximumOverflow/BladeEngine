@@ -16,12 +16,12 @@
                 
                     <Grid ColumnDefinitions="128, *">
                         <TextBlock Grid.Column="0" Text="Assembly name" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1"/>
+                        <TextBox Grid.Column="1" Text="{Binding AssemblyName}"/>
                     </Grid>
                     
                     <Grid ColumnDefinitions="128, *">
                         <TextBlock Grid.Column="0" Text="Root namespace" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1"/>
+                        <TextBox Grid.Column="1" Text="{Binding RootNamespace}"/>
                     </Grid>
                 </StackPanel>
             </ScrollViewer>
@@ -45,16 +45,17 @@
             <StackPanel Spacing="8">
                 <Grid ColumnDefinitions="128, *">
                     <TextBlock Grid.Column="0" Text="Target platform" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch">
+                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"  SelectedIndex="{Binding OperatingSystem}">
                         <ComboBoxItem>Windows</ComboBoxItem>
-                        <ComboBoxItem IsEnabled="False">MacOS</ComboBoxItem>
                         <ComboBoxItem IsEnabled="False">Linux</ComboBoxItem>
+                        <ComboBoxItem IsEnabled="False">MacOS</ComboBoxItem>
                     </ComboBox>
                 </Grid>
                 
                 <Grid ColumnDefinitions="128, *">
                     <TextBlock Grid.Column="0" Text="Architecture" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Column="1" Name="Architecture" HorizontalAlignment="Stretch" SelectionChanged="SelectArchitecture">
+                    <ComboBox Grid.Column="1" Name="Architecture" HorizontalAlignment="Stretch" SelectedIndex="{Binding Architecture}">
+                        <ComboBoxItem>Any</ComboBoxItem>
                         <ComboBoxItem>x86</ComboBoxItem>
                         <ComboBoxItem>x64</ComboBoxItem>
                     </ComboBox>
@@ -62,7 +63,7 @@
                 
                 <Grid ColumnDefinitions="128, *">
                     <TextBlock Grid.Column="0" Text="Build type" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch">
+                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="{Binding BuildType}">
                         <ComboBoxItem>Debug</ComboBoxItem>
                         <ComboBoxItem>Release</ComboBoxItem>
                     </ComboBox>

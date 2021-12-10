@@ -1,15 +1,77 @@
-﻿namespace BladeEngine.Editor.CodeGeneration;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace BladeEngine.Editor.CodeGeneration;
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+public enum Architecture
+{
+	AnyCPU, X86, X64,
+}
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+public enum OperatingSystem
+{
+	Windows, Linux, MacOS
+}
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+public enum BuildType
+{
+	Debug, Release,
+}
 
 public class Project
 {
 	private FileInfo _file;
-	public string Name { get; set; }
 	public readonly DirectoryInfo Directory;
 	private readonly ProjectRootElement _root;
 	private readonly Dictionary<string, ProjectItemElement> _items;
 	private readonly Dictionary<string, ProjectPropertyElement> _properties;
+
+	#region Properties
+
+	public string Name { get; set; }
+
 	public IReadOnlyDictionary<string, ProjectItemElement> Items => _items;
 	public IReadOnlyDictionary<string, ProjectPropertyElement> Properties => _properties;
+
+	public string AssemblyName
+	{
+		get => _properties[nameof(AssemblyName)].Value;
+		set => _properties[nameof(AssemblyName)].Value = value;
+	}
+	
+	public string RootNamespace
+	{
+		get => _properties[nameof(RootNamespace)].Value;
+		set => _properties[nameof(RootNamespace)].Value = value;
+	}
+
+	public Architecture Architecture
+	{
+		get => Enum.Parse<Architecture>(_properties[nameof(Architecture)].Value);
+		set => _properties[nameof(Architecture)].Value = value.ToString();
+	}
+	
+	public OperatingSystem OperatingSystem
+	{
+		get => Enum.Parse<OperatingSystem>(_properties[nameof(OperatingSystem)].Value);
+		set => _properties[nameof(OperatingSystem)].Value = value.ToString();
+	}
+	
+	public BuildType BuildType
+	{
+		get => Enum.Parse<BuildType>(_properties[nameof(BuildType)].Value);
+		set => _properties[nameof(BuildType)].Value = value.ToString();
+	}
+
+	public string EngineAssemblyPath
+	{
+		get => _items[nameof(EngineAssemblyPath)].Metadata.First().Value;
+		set => _items[nameof(EngineAssemblyPath)].Metadata.First().Value = value;
+	}
+
+	#endregion
 
 	public Project(FileInfo file)
 	{
@@ -30,11 +92,10 @@ public class Project
 			if(!string.IsNullOrEmpty(item.Label))
 				_items.Add(item.Label, item);
 
-		var assemblyLocation = _items["EngineAssembly"].Metadata.First();
-		if (assemblyLocation.Value != EnvironmentVariables.EngineAssemblyPath)
+		if (EngineAssemblyPath != EnvironmentVariables.EngineAssemblyPath)
 		{
 			Debug.LogWarning($"Project '{Name}' was using an outdated engine assembly path. The path has been updated.");
-			assemblyLocation.Value = EnvironmentVariables.EngineAssemblyPath;
+			EngineAssemblyPath = EnvironmentVariables.EngineAssemblyPath;
 			Save();
 		}
 	}
@@ -52,18 +113,20 @@ public class Project
 		general.AddProperty("TargetFramework", "net6.0");
 		general.AddProperty("ImplicitUsings", "enable");
 		general.AddProperty("Nullable", "enable");
-		general.AddProperty("AssemblyName", assembly ?? name).Label = "Assembly";
-		general.AddProperty("RootNamespace", @namespace ?? name).Label = "Namespace";
+		general.AddProperty("AssemblyName", assembly ?? name).Label = nameof(AssemblyName);
+		general.AddProperty("RootNamespace", @namespace ?? name).Label = nameof(RootNamespace);
 		general.AddProperty("AllowUnsafeBlocks", "true");
 
 		var build = proj.AddPropertyGroup();
 		build.Label = "BuildSettings";
-		build.AddProperty("PlatformTarget", "X64").Label = "Architecture";
+		build.AddProperty("BladeSetting", BuildType.Debug.ToString()).Label = nameof(BuildType);
+		build.AddProperty("BladeSetting", OperatingSystem.Windows.ToString()).Label = nameof(OperatingSystem);
+		build.AddProperty("PlatformTarget", Architecture.X64.ToString()).Label = nameof(Architecture);
 
 		var packages = proj.AddItemGroup();
 		packages.Label = "Packages";
 		var core = packages.AddItem("Reference", "BladeEngine.Core");
-		core.Label = "EngineAssembly";
+		core.Label = nameof(EngineAssemblyPath);
 		core.AddMetadata("HintPath", $"{EnvironmentVariables.EngineAssemblyPath}");
 
 		var createDirectories = new[] {"Assets", "Scenes", "Build"};
