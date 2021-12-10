@@ -30,7 +30,7 @@
         <TabItem Header="Packages">
             <StackPanel>
                 <Grid ColumnDefinitions="*, Auto" >
-                    <TextBox Grid.Column="0" Watermark="Search"/>
+                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="InputElement_OnKeyUp"/>
                     <CheckBox Grid.Column="1" Margin="8, 0, 0, 0">Installed only</CheckBox>
                 </Grid>
                 <ScrollViewer>

@@ -1,0 +1,16 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="132"
+             Height="132"
+             x:Class="BladeEngine.Editor.UI.PackageEntry">
+    <Grid ColumnDefinitions="Auto, *, Auto" Margin="16">
+        <Image Grid.Column="0" Name="Image" Width="96" Height="96"/>
+        <TextBlock  Grid.Column="1" Name="Title" Text="Package title" VerticalAlignment="Center" FontSize="32" Margin="16"/>
+        <StackPanel Grid.Column="2" Spacing="16" Orientation="Horizontal">
+            <ComboBox Name="Versions" VerticalAlignment="Center" MinWidth="128"/>
+            <Button Name="Action">Install</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>
