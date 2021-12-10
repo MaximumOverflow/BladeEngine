@@ -2,7 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ui="clr-namespace:BladeEngine.Editor.UI"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="800" Height="450"
         x:Class="BladeEngine.Editor.UI.ProjectSettings"
@@ -32,8 +31,11 @@
         <TabItem Header="Packages">
             <Grid RowDefinitions="Auto, *">
                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" >
-                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="InputElement_OnKeyUp"/>
-                    <CheckBox Grid.Column="1" Margin="8, 0, 0, 0" IsEnabled="False">Installed only</CheckBox>
+                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="SearchPackage"/>
+                    <CheckBox Grid.Column="1" Name="Installed" Margin="8, 0, 0, 0"
+                    Checked="ToggleInstalledPackages" Unchecked="ToggleInstalledPackages">
+                        Installed only
+                    </CheckBox>
                 </Grid>
                 <ScrollViewer  Grid.Row="1">
                     <StackPanel Name="PackageList"/>

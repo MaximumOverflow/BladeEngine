@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using NuGet.Versioning;
 
 namespace BladeEngine.Editor.CodeGeneration;
@@ -64,7 +65,7 @@ public class Project
 		}
 		_includes = includes;
 		
-		_packages = new Dictionary<string, NuGetVersion?>();
+		_packages = new Dictionary<string, NuGetVersion?>(StringComparer.InvariantCultureIgnoreCase);
 		// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
 		foreach (ProjectItemElement reference in includes.Children)
 		{
@@ -189,7 +190,7 @@ public class Project
 	{
 		if (!_packages.Remove(package)) return false;
 		_packagesEdited = true;
-		_includes.RemoveChild(_includes.Items.First(p => p.Include == package));
+		_includes.RemoveChild(_includes.Items.First(p => string.Compare(p.Include, package, true, CultureInfo.InvariantCulture) == 0));
 		return true;
 	}
 
@@ -209,7 +210,11 @@ public class Project
 
 		if (_packagesEdited)
 		{
-			Process.Start(new ProcessStartInfo("dotnet", "restore") {WorkingDirectory = Directory.FullName})!.WaitForExit();
+			Process.Start(new ProcessStartInfo("dotnet", "restore")
+			{
+				WorkingDirectory = Directory.FullName, 
+				CreateNoWindow = false, UseShellExecute = false,
+			})!.WaitForExit();
 			_packagesEdited = false;
 		}
 	}

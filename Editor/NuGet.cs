@@ -1,4 +1,5 @@
-﻿using NuGet.Protocol.Core.Types;
+﻿using System.Globalization;
+using NuGet.Protocol.Core.Types;
 using Avalonia.Media.Imaging;
 using NuGet.Configuration;
 using NuGet.Common;
@@ -33,7 +34,17 @@ public static partial class NuGet
 	{
 		var results = await Search(package, 1);
 		var result = results.FirstOrDefault();
-		return result.Title == package ? result : null;
+		// ReSharper disable once ConstantNullCoalescingCondition
+		return string.Compare(package, result.Title ?? String.Empty, true, CultureInfo.InvariantCulture) == 0 ? result : null;
+	}
+	
+	public static async Task FetchInfo(string package, Action<NugetPackageInfo?> callback)
+	{
+		var results = await Search(package, 1);
+		var result = results.FirstOrDefault();
+		// ReSharper disable once ConstantNullCoalescingCondition
+		callback.Invoke(string.Compare(package, result.Title ?? String.Empty, 
+			true, CultureInfo.InvariantCulture) == 0 ? result : null);
 	}
 
 	public static async Task<Bitmap?> FetchIcon(NugetPackageInfo package)
@@ -49,11 +60,10 @@ public static partial class NuGet
 		return new Bitmap(iconPath);
 	}
 
-	public static async Task<Bitmap?> FetchIcon(NugetPackageInfo package, Action<Bitmap?> callback)
+	public static async Task FetchIcon(NugetPackageInfo package, Action<Bitmap?> callback)
 	{
 		var icon = await FetchIcon(package);
 		callback.Invoke(icon);
-		return icon;
 	}
 	
 	public static async Task<IEnumerable<NugetPackageInfo>> Search(string search, int maxResults = 32)
@@ -77,7 +87,7 @@ public static partial class NuGet
 				
 				packages.Add(new NugetPackageInfo
 				(
-					package.Title, package.Owners, package.Authors, package.Description, package.DownloadCount, versions,
+					package.Identity.Id, package.Owners, package.Authors, package.Description, package.DownloadCount, versions,
 					package.IconUrl?.ToString(), package.LicenseUrl?.ToString(), package.ReadmeUrl?.ToString(), 
 					package.ProjectUrl?.ToString(), package.PackageDetailsUrl?.ToString()
 				));
