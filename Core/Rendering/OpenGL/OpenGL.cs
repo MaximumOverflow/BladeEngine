@@ -79,17 +79,22 @@ public unsafe class OpenGL : GraphicsApi
 		return true;
 	}
 
+	public override void HandleWindowEvents()
+	{
+		Window.DoEvents();
+	}
+	
+	public override void SwapBuffers()
+	{
+		Window.SwapBuffers();
+	}
+
 	public override void Clear()
 	{
 		uint mask = 0;
 		mask |= (uint) GLEnum.ColorBufferBit;
 		mask |= (uint) GLEnum.DepthBufferBit;
 		Api.Clear(mask);
-	}
-
-	public override void SwapBuffers()
-	{
-		Window.SwapBuffers();
 	}
 
 	public override void SetClearColor(float r, float g, float b)
