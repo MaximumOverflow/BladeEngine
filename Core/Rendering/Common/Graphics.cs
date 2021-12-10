@@ -30,12 +30,15 @@ public static class Graphics
 			default: throw new NotImplementedException();
 		}
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void SwapBuffers() => Current.SwapBuffers();
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void HandleWindowEvents() => Current.HandleWindowEvents();
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void Clear() => Current.Clear();
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void SwapBuffers() => Current.SwapBuffers();
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetClearColor(float r, float g, float b) 
@@ -76,10 +79,11 @@ public static class Graphics
 
 public abstract class GraphicsApi
 {
-	public abstract bool Running { get; }
+	public abstract bool Running { get; }	
+	public abstract void SwapBuffers();
+	public abstract void HandleWindowEvents();
 	
 	public abstract void Clear();
-	public abstract void SwapBuffers();
 	public abstract void SetClearColor(float r, float g, float b);
 	public abstract void SetRenderingResolution(uint width, uint height);
 	public abstract void GetRenderingResolution(out uint width, out uint height);
