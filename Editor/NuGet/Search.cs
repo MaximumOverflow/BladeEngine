@@ -4,7 +4,7 @@ using NuGet.Common;
 
 namespace BladeEngine.Editor.NuGet;
 
-public static partial class Nuget
+public static partial class NuGet
 {
 	// private static readonly PackageMetadataResource MetadataResource = CreateMetadataResource();
 

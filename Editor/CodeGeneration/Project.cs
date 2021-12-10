@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using BladeEngine.Editor.NuGet;
+using NuGet.Versioning;
 
 namespace BladeEngine.Editor.CodeGeneration;
 
@@ -26,15 +28,115 @@ public class Project
 	internal static readonly Regex NamespaceRegex = new("[a-zA-Z][a-zA-Z_0-9]*(\\.[a-zA-Z][a-zA-Z_0-9]*)*", RegexOptions.Compiled);
 	
 	private FileInfo _file;
+	private bool _packagesEdited;
 	public readonly DirectoryInfo Directory;
 	private readonly ProjectRootElement _root;
+	private readonly ProjectItemGroupElement _includes;
+	private readonly Dictionary<string, NuGetVersion?> _packages;
 	private readonly Dictionary<string, ProjectItemElement> _items;
 	private readonly Dictionary<string, ProjectPropertyElement> _properties;
+
+	#region Creation
+
+	public Project(FileInfo file)
+	{
+		if (!file.Exists) throw new FileNotFoundException("Could not open project.", file.FullName);
+		
+		_file = file;
+		Directory = file.Directory!;
+		Name = file.Name[..file.Name.LastIndexOf('.')];
+		_root = ProjectRootElement.Open(file.FullName)!;
+		
+		_properties = new Dictionary<string, ProjectPropertyElement>();
+		foreach (var property in _root.Properties)
+			if(!string.IsNullOrEmpty(property.Label))
+				_properties.Add(property.Label, property);
+
+		_items = new Dictionary<string, ProjectItemElement>();
+		foreach (var item in _root.Items)
+			if(!string.IsNullOrEmpty(item.Label))
+				_items.Add(item.Label, item);
+		
+		var includes = _root.ItemGroups.FirstOrDefault(g => g.Label == nameof(Packages));
+		if (includes is null)
+		{
+			includes = _root.AddItemGroup();
+			includes.Label = nameof(Packages);
+		}
+		_includes = includes;
+		
+		_packages = new Dictionary<string, NuGetVersion?>();
+		// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
+		foreach (ProjectItemElement reference in includes.Children)
+		{
+			var v = reference.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
+			var version = v is null ? null : new NuGetVersion(v);
+			_packages.Add(reference.Include, version);
+		}
+
+		if (EngineAssemblyPath != EnvironmentVariables.EngineAssemblyPath)
+		{
+			Debug.LogWarning($"Project '{Name}' was using an outdated engine assembly path. The path has been updated.");
+			EngineAssemblyPath = EnvironmentVariables.EngineAssemblyPath;
+			Save();
+		}
+	}
+	
+	public static Project Create(string directory, string name, string? assembly = null, string? @namespace = null)
+	{
+		var dir = new DirectoryInfo(directory);
+		if(!dir.Exists) throw new DirectoryNotFoundException($"'{directory}' does not exist.");
+
+		var file = new FileInfo(Path.Combine(directory, name, name + ".csproj"));
+		var proj = ProjectRootElement.Create(file.FullName);
+		proj.Sdk = "Microsoft.NET.Sdk";
+
+		var general = proj.AddPropertyGroup();
+		general.AddProperty("TargetFramework", "net6.0");
+		general.AddProperty("ImplicitUsings", "enable");
+		general.AddProperty("Nullable", "enable");
+		general.AddProperty("AssemblyName", assembly ?? name).Label = nameof(AssemblyName);
+		general.AddProperty("RootNamespace", @namespace ?? name).Label = nameof(RootNamespace);
+		general.AddProperty("AllowUnsafeBlocks", "true");
+
+		var build = proj.AddPropertyGroup();
+		build.Label = "BuildSettings";
+		build.AddProperty("BladeSetting", BuildType.Debug.ToString()).Label = nameof(BuildType);
+		build.AddProperty("BladeSetting", OperatingSystem.Windows.ToString()).Label = nameof(OperatingSystem);
+		build.AddProperty("PlatformTarget", Architecture.X64.ToString()).Label = nameof(Architecture);
+
+		var packages = proj.AddItemGroup();
+		packages.Label = nameof(Packages);
+		var core = packages.AddItem("Reference", "BladeEngine.Core");
+		core.Label = nameof(EngineAssemblyPath);
+		core.AddMetadata("HintPath", $"{EnvironmentVariables.EngineAssemblyPath}");
+
+		var createDirectories = new[] {"Assets", "Scenes", "Build"};
+		var ignoreDirectories = new[] {"Build"};
+		
+		dir = file.Directory!;
+		foreach (var d in createDirectories) dir.CreateSubdirectory(d);
+		
+		var ignore = proj.AddItemGroup(); ignore.Label = "Ignore";
+		foreach (var d in ignoreDirectories)
+		{
+			dir.CreateSubdirectory(d);
+			var i = ignore.AddItem("None", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
+				i = ignore.AddItem("Compile", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
+				i = ignore.AddItem("EmbeddedResource", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
+		}
+
+		proj.Save();
+		return new Project(file);
+	}
+
+	#endregion
 
 	#region Properties
 
 	public string Name { get; set; }
 
+	public IReadOnlyDictionary<string, NuGetVersion?> Packages => _packages;
 	public IReadOnlyDictionary<string, ProjectItemElement> Items => _items;
 	public IReadOnlyDictionary<string, ProjectPropertyElement> Properties => _properties;
 
@@ -76,79 +178,20 @@ public class Project
 
 	#endregion
 
-	public Project(FileInfo file)
+	public bool AddPackage(string package, NuGetVersion version)
 	{
-		if (!file.Exists) throw new FileNotFoundException("Could not open project.", file.FullName);
-		
-		_file = file;
-		Directory = file.Directory!;
-		Name = file.Name[..file.Name.LastIndexOf('.')];
-		_root = ProjectRootElement.Open(file.FullName)!;
-		
-		_properties = new Dictionary<string, ProjectPropertyElement>();
-		foreach (var property in _root.Properties)
-			if(!string.IsNullOrEmpty(property.Label))
-				_properties.Add(property.Label, property);
-
-		_items = new Dictionary<string, ProjectItemElement>();
-		foreach (var item in _root.Items)
-			if(!string.IsNullOrEmpty(item.Label))
-				_items.Add(item.Label, item);
-
-		if (EngineAssemblyPath != EnvironmentVariables.EngineAssemblyPath)
-		{
-			Debug.LogWarning($"Project '{Name}' was using an outdated engine assembly path. The path has been updated.");
-			EngineAssemblyPath = EnvironmentVariables.EngineAssemblyPath;
-			Save();
-		}
+		if (!_packages.TryAdd(package, version)) return false;
+		_packagesEdited = true;
+		_includes.AddItem("Reference", package).AddMetadata("Version", version.ToString(), true);
+		return true;
 	}
-	
-	public static Project Create(string directory, string name, string? assembly = null, string? @namespace = null)
+
+	public bool RemovePackage(string package)
 	{
-		var dir = new DirectoryInfo(directory);
-		if(!dir.Exists) throw new DirectoryNotFoundException($"'{directory}' does not exist.");
-
-		var file = new FileInfo(Path.Combine(directory, name, name + ".csproj"));
-		var proj = ProjectRootElement.Create(file.FullName);
-		proj.Sdk = "Microsoft.NET.Sdk";
-
-		var general = proj.AddPropertyGroup();
-		general.AddProperty("TargetFramework", "net6.0");
-		general.AddProperty("ImplicitUsings", "enable");
-		general.AddProperty("Nullable", "enable");
-		general.AddProperty("AssemblyName", assembly ?? name).Label = nameof(AssemblyName);
-		general.AddProperty("RootNamespace", @namespace ?? name).Label = nameof(RootNamespace);
-		general.AddProperty("AllowUnsafeBlocks", "true");
-
-		var build = proj.AddPropertyGroup();
-		build.Label = "BuildSettings";
-		build.AddProperty("BladeSetting", BuildType.Debug.ToString()).Label = nameof(BuildType);
-		build.AddProperty("BladeSetting", OperatingSystem.Windows.ToString()).Label = nameof(OperatingSystem);
-		build.AddProperty("PlatformTarget", Architecture.X64.ToString()).Label = nameof(Architecture);
-
-		var packages = proj.AddItemGroup();
-		packages.Label = "Packages";
-		var core = packages.AddItem("Reference", "BladeEngine.Core");
-		core.Label = nameof(EngineAssemblyPath);
-		core.AddMetadata("HintPath", $"{EnvironmentVariables.EngineAssemblyPath}");
-
-		var createDirectories = new[] {"Assets", "Scenes", "Build"};
-		var ignoreDirectories = new[] {"Build"};
-		
-		dir = file.Directory!;
-		foreach (var d in createDirectories) dir.CreateSubdirectory(d);
-		
-		var ignore = proj.AddItemGroup(); ignore.Label = "Ignore";
-		foreach (var d in ignoreDirectories)
-		{
-			dir.CreateSubdirectory(d);
-			var i = ignore.AddItem("None", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
-				i = ignore.AddItem("Compile", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
-				i = ignore.AddItem("EmbeddedResource", "placeholder"); i.Include = ""; i.Remove = $"{d}/**";
-		}
-
-		proj.Save();
-		return new Project(file);
+		if (!_packages.Remove(package)) return false;
+		_packagesEdited = true;
+		_includes.RemoveChild(_includes.Items.First(p => p.Include == package));
+		return true;
 	}
 
 	public void Save()
@@ -164,6 +207,12 @@ public class Project
 		var path = Path.Combine(Directory.FullName, Name + ".csproj");
 		_root.Save(path);
 		_file = new FileInfo(path);
+
+		if (_packagesEdited)
+		{
+			Process.Start(new ProcessStartInfo("dotnet", "restore") {WorkingDirectory = Directory.FullName})!.WaitForExit();
+			_packagesEdited = false;
+		}
 	}
 
 	public override string ToString()

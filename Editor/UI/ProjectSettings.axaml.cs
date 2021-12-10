@@ -36,11 +36,11 @@ public class ProjectSettings : Window
 			TextAlignment = TextAlignment.Center, Margin = new Thickness(16)});
 		
 		var model = (ProjectModel) DataContext!;
-		var results = await Nuget.Search(_packageSearch.Text);
+		var results = await NuGet.NuGet.Search(_packageSearch.Text);
 
 		_packageList.Children.Clear();
 		foreach (var package in results)
-			_packageList.Children.Add(await PackageEntry.Create(model, package));
+			_packageList.Children.Add(new PackageEntry(model, package));
 	}
 
 	#endregion
