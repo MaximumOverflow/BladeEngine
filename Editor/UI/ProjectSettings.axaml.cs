@@ -1,5 +1,4 @@
 ﻿using BladeEngine.Editor.UI.Models;
-using BladeEngine.Editor.NuGet;
 using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -36,7 +35,7 @@ public class ProjectSettings : Window
 			TextAlignment = TextAlignment.Center, Margin = new Thickness(16)});
 		
 		var model = (ProjectModel) DataContext!;
-		var results = await NuGet.NuGet.Search(_packageSearch.Text);
+		var results = await NuGet.Search(_packageSearch.Text);
 
 		_packageList.Children.Clear();
 		foreach (var package in results)

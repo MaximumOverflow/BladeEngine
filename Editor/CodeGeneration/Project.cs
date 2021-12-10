@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BladeEngine.Editor.NuGet;
 using NuGet.Versioning;
 
 namespace BladeEngine.Editor.CodeGeneration;

@@ -1,5 +1,4 @@
 ﻿using BladeEngine.Editor.UI.Models;
-using BladeEngine.Editor.NuGet;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
@@ -24,14 +23,14 @@ public class PackageEntry : UserControl
 		_versions = this.FindControl<ComboBox>("Versions");
 	}
 
-	public PackageEntry(ProjectModel model, NugetSearchResult package) : this()
+	public PackageEntry(ProjectModel model, NugetPackageInfo package) : this()
 	{
 		DataContext = model;
 		_title.Text = package.Title;
 		_versions.Items = package.PackageVersions;
 		_versions.SelectedIndex = 0;
 		_button.Content = model.Project.Packages.ContainsKey(_title.Text) ? "Remove" : "Install";
-		NuGet.NuGet.FetchIcon(package, img => Dispatcher.UIThread.InvokeAsync(() => _image.Source = img)).ConfigureAwait(false);
+		NuGet.FetchIcon(package, img => Dispatcher.UIThread.InvokeAsync(() => _image.Source = img)).ConfigureAwait(false);
 	}
 
 	private void HandleButtonAction(object? sender, RoutedEventArgs e)
