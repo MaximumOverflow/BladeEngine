@@ -6,6 +6,7 @@ Blade was built from the ground up to give a seamless cross-platform experience,
 
 ## Screenshots
 There isn't much to see at the moment.
+![Editor window](Screenshots/Editor.png)
 
 ## Projects using Blade
 None, it's not even out yet.

@@ -1,0 +1,73 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="BladeEngine.Editor.UI.ProjectSettings"
+        Title="ProjectSettings">
+    <TabControl Padding="8">
+        <TabItem Header="General">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="128, *">
+                        <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Text="{Binding Name}"/>
+                    </Grid>
+                
+                    <Grid ColumnDefinitions="128, *">
+                        <TextBlock Grid.Column="0" Text="Assembly name" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"/>
+                    </Grid>
+                    
+                    <Grid ColumnDefinitions="128, *">
+                        <TextBlock Grid.Column="0" Text="Root namespace" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        
+        <TabItem Header="Packages">
+            <StackPanel>
+                <Grid ColumnDefinitions="*, Auto" >
+                    <TextBox Grid.Column="0" Name="PackageSearch" Watermark="Search" KeyUp="InputElement_OnKeyUp"/>
+                    <CheckBox Grid.Column="1" Margin="8, 0, 0, 0">Installed only</CheckBox>
+                </Grid>
+                <ScrollViewer>
+                    <StackPanel Name="PackageList">
+                        
+                    </StackPanel>
+                </ScrollViewer>
+            </StackPanel>
+        </TabItem>
+        
+        <TabItem Header="Build settings">
+            <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="128, *">
+                    <TextBlock Grid.Column="0" Text="Target platform" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch">
+                        <ComboBoxItem>Windows</ComboBoxItem>
+                        <ComboBoxItem IsEnabled="False">MacOS</ComboBoxItem>
+                        <ComboBoxItem IsEnabled="False">Linux</ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+                
+                <Grid ColumnDefinitions="128, *">
+                    <TextBlock Grid.Column="0" Text="Architecture" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Name="Architecture" HorizontalAlignment="Stretch" SelectionChanged="SelectArchitecture">
+                        <ComboBoxItem>x86</ComboBoxItem>
+                        <ComboBoxItem>x64</ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+                
+                <Grid ColumnDefinitions="128, *">
+                    <TextBlock Grid.Column="0" Text="Build type" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch">
+                        <ComboBoxItem>Debug</ComboBoxItem>
+                        <ComboBoxItem>Release</ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</Window>

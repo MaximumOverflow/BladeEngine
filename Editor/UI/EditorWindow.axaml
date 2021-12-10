@@ -1,0 +1,87 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:rendering="clr-namespace:BladeEngine.Editor.UI.Rendering"
+        xmlns:editor="clr-namespace:BladeEngine.Editor.UI"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="BladeEngine.Editor.UI.EditorWindow"
+        Title="Blade Editor">
+    
+   <Grid RowDefinitions="Auto, *">
+       <Menu Grid.Row="0">
+           <MenuItem Header="File">
+               <MenuItem Header="New Project..."  Click="NewProject"/>
+               <MenuItem Header="Open Project..." Click="OpenProject"/>
+               <MenuItem Header="Save Project" Click="SaveProject" IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Close Project" Click="CloseProject" IsEnabled="{Binding !!ProjectModel}"/>
+               <Separator/>
+               <MenuItem Header="New Scene..." IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Load Scene..." IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Save Scene" IsEnabled="{Binding !!SceneModel}"/>
+               <Separator/>
+               <MenuItem Header="Run" IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Build" Click="Build" IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Build and Run" Click="BuildAndRun" IsEnabled="{Binding !!ProjectModel}"/>
+               <Separator/>
+               <MenuItem Header="Exit" Click="Exit"/>
+           </MenuItem>
+           <MenuItem Header="Edit">
+               <MenuItem Header="Undo"/>
+               <MenuItem Header="Redo"/>
+               <Separator/>
+               <MenuItem Header="Cut"/>
+               <MenuItem Header="Copy"/>
+               <MenuItem Header="Paste"/>
+           </MenuItem>
+           <MenuItem Header="Settings">
+               <MenuItem Header="Project Settings" IsEnabled="{Binding !!ProjectModel}" Click="OpenProjectSettings"/>
+               <MenuItem Header="Scene Settings" IsEnabled="{Binding !!SceneModel}"/>
+           </MenuItem>
+           <MenuItem Header="Help">
+               <MenuItem Header="About Blade" IsEnabled="False"/>
+               <MenuItem Header="Blade Manual" IsEnabled="False"/>
+               <Separator/>
+               <MenuItem Header="Check for updates..." IsEnabled="False"/>
+           </MenuItem>
+       </Menu>
+       
+       <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, *, Auto, Auto">
+           <!-- Left -->
+           <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+           <TabControl Grid.Column="0">
+               <TabItem Header="Hierarchy">
+                    
+               </TabItem>
+           </TabControl>
+            
+           <!-- Right -->
+           <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
+           <TabControl Grid.Column="4">
+               <TabItem Header="Inspector">
+                    
+               </TabItem>
+           </TabControl>
+        
+           <!-- Center -->
+           <Grid Grid.Column="2" RowDefinitions="*, Auto, Auto">
+               <rendering:RenderView Grid.Row="0"/>
+               
+               <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
+               <TabControl Grid.Row="2">
+                   <TabItem Header="Console"><editor:Console/></TabItem>
+               </TabControl>
+           </Grid>
+       </Grid>
+   </Grid>
+    
+    <Window.Styles>
+        <Style Selector="editor|Console">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        
+        <Style Selector="GridSplitter">
+            <Setter Property="Background" Value="#3b3a3a"/>
+        </Style>
+    </Window.Styles>
+</Window>

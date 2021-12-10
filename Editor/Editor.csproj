@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
+        <OutputType Condition=" '$(Configuration)' == 'Debug' ">Exe</OutputType>
+        <OutputType Condition=" '$(Configuration)' == 'Release' ">WinExe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -21,6 +22,7 @@
       <PackageReference Include="Avalonia.Diagnostics" Version="0.10.10" />
       <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.10" />
       <PackageReference Include="Microsoft.Build" Version="17.0.0" />
+      <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -42,6 +44,18 @@
           <DependentUpon>ProjectSettings.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
+        <Compile Update="UI\App.axaml.cs">
+          <DependentUpon>App.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="UI\EditorWindow.axaml.cs">
+          <DependentUpon>EditorWindow.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="UI\Console.axaml.cs">
+          <DependentUpon>Console.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="UI\NewProjectDialog.axaml.cs">
+          <DependentUpon>NewProjectDialog.axaml</DependentUpon>
+        </Compile>
     </ItemGroup>
     
     <ItemGroup>
@@ -51,6 +65,9 @@
     <ItemGroup>
       <AvaloniaXaml Update="Avalonia\FileEntry.axaml">
         <DependentUpon>FileExplorer.axaml</DependentUpon>
+      </AvaloniaXaml>
+      <AvaloniaXaml Update="UI\PackageEntry.axaml">
+        <DependentUpon>ProjectSettings.axaml</DependentUpon>
       </AvaloniaXaml>
     </ItemGroup>
 

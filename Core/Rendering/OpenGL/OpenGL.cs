@@ -108,7 +108,6 @@ public unsafe class OpenGL : GraphicsApi
 		Api.Scissor(0, 0, width, height);
 		Api.Viewport(0, 0, width, height);
 		(_renderWidth, _renderHeight) = (width, height);
-		Debug.Log($"OpenGL render resolution set to {_renderWidth}x{_renderHeight}...");
 	}
 
 	public uint MeshDrawQueueSize { get; private set; }
