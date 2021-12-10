@@ -51,6 +51,9 @@
         <Compile Update="UI\Console.axaml.cs">
           <DependentUpon>Console.axaml</DependentUpon>
         </Compile>
+        <Compile Update="UI\NewProjectDialog.axaml.cs">
+          <DependentUpon>NewProjectDialog.axaml</DependentUpon>
+        </Compile>
     </ItemGroup>
     
     <ItemGroup>

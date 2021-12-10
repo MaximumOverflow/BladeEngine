@@ -1,0 +1,42 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600"
+        x:Class="BladeEngine.Editor.UI.NewProjectDialog"
+        SizeToContent="Height" CanResize="False" Width="600"
+        Title="New Project">
+    <StackPanel Spacing="8" Name="Panel">
+        <Grid ColumnDefinitions="128, *, Auto">
+            <TextBlock Grid.Column="0" Text="Directory" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Name="Directory" KeyUp="CheckInput"/>
+            <Button Grid.Column="2" Margin="8 0 0,0" Click="Browse">Browse</Button>
+        </Grid>
+        <Grid ColumnDefinitions="128, *">
+            <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Name="Name" KeyUp="CheckInput"/>
+        </Grid>
+                
+        <Grid ColumnDefinitions="128, *">
+            <TextBlock Grid.Column="0" Text="Assembly name" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Name="Assembly" KeyUp="CheckInput"/>
+        </Grid>
+        
+        <Grid ColumnDefinitions="128, *">
+            <TextBlock Grid.Column="0" Text="Root namespace" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Name="Namespace" KeyUp="CheckInput"/>
+        </Grid>
+        
+        <TextBlock Name="Errors" Foreground="Red" TextAlignment="Center">Mistakes have been made...</TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+            <Button Name="Create" Width="100" HorizontalContentAlignment="Center" IsEnabled="False" Click="Create">Create</Button>
+            <Button Width="100" HorizontalContentAlignment="Center" Click="Cancel">Cancel</Button>
+        </StackPanel>
+    </StackPanel>
+    
+    <Window.Styles>
+        <Style Selector="StackPanel#Panel">
+            <Setter Property="Margin" Value="8"/>
+        </Style>
+    </Window.Styles>
+</Window>

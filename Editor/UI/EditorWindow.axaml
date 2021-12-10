@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:rendering="clr-namespace:BladeEngine.Editor.UI.Rendering"
-        xmlns:ui="clr-namespace:BladeEngine.Editor.UI"
+        xmlns:editor="clr-namespace:BladeEngine.Editor.UI"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="BladeEngine.Editor.UI.EditorWindow"
         Title="Blade Editor">
@@ -65,19 +65,21 @@
         
            <!-- Center -->
            <Grid Grid.Column="2" RowDefinitions="*, Auto, Auto">
-               <!-- <TextBlock Grid.Row="0" Text="Render view" HorizontalAlignment="Center" VerticalAlignment="Center"/> -->
-               <rendering:RenderView  Grid.Row="0"/>
+               <rendering:RenderView Grid.Row="0"/>
+               
                <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
                <TabControl Grid.Row="2">
-                   <TabItem Header="Console">
-                       <ui:Console/>
-                   </TabItem>
+                   <TabItem Header="Console"><editor:Console/></TabItem>
                </TabControl>
            </Grid>
        </Grid>
    </Grid>
     
     <Window.Styles>
+        <Style Selector="editor|Console">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        
         <Style Selector="GridSplitter">
             <Setter Property="Background" Value="#3b3a3a"/>
         </Style>

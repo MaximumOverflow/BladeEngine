@@ -1,6 +1,6 @@
 ﻿using Avalonia.Markup.Xaml;
-using Avalonia.Controls;
 using System.Reflection;
+using Avalonia.Controls;
 using Avalonia.Input;
 
 namespace BladeEngine.Editor.UI;
