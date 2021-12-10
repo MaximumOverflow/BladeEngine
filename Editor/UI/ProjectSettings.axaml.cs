@@ -1,26 +1,21 @@
-﻿using Avalonia;
-using BladeEngine.Editor.UI.Models;
-using NuGet.Protocol.Core.Types;
+﻿using BladeEngine.Editor.UI.Models;
+using BladeEngine.Editor.NuGet;
 using Avalonia.Markup.Xaml;
-using NuGet.Configuration;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using BladeEngine.Editor.NuGet;
-using NuGet.Common;
+using Avalonia;
 
 namespace BladeEngine.Editor.UI;
 
 public class ProjectSettings : Window
 {
-	private readonly ComboBox _architecture;
-	private readonly StackPanel _packageList;
 	private readonly TextBox _packageSearch;
-	
+	private readonly StackPanel _packageList;
+
 	public ProjectSettings()
 	{
 		AvaloniaXamlLoader.Load(this);
-		_architecture = this.FindControl<ComboBox>("Architecture");
 		_packageList = this.FindControl<StackPanel>("PackageList");
 		_packageSearch = this.FindControl<TextBox>("PackageSearch");
 	}
@@ -28,26 +23,10 @@ public class ProjectSettings : Window
 	public ProjectSettings(ProjectModel project) : this()
 	{
 		DataContext = project;
-		foreach (ComboBoxItem i in _architecture.Items)
-		{
-			if ((string) i.Content != project.Architecture) continue;
-			_architecture.SelectedItem = i;
-			break;
-		}
-	}
-
-	private void SelectArchitecture(object? sender, SelectionChangedEventArgs e)
-	{
-		if(DataContext is null) return;
-		var model = (ProjectModel) DataContext!;
-		var arch = (string) ((ComboBoxItem) _architecture.SelectedItem!).Content;
-		model.Architecture = arch!;
 	}
 
 	#region Nuget
 
-	
-	
 	private async void InputElement_OnKeyUp(object? sender, KeyEventArgs e)
 	{
 		if(e.Key != Key.Return) return;
@@ -65,4 +44,21 @@ public class ProjectSettings : Window
 	}
 
 	#endregion
+
+	protected override bool HandleClosing()
+	{
+		var model = (ProjectModel) DataContext!;
+		if (!model.Validate())
+		{
+			new WarningDialog("Some project settings are invalid. Please check your project.").ShowDialog(this);
+			return true;
+		}
+
+		if (base.HandleClosing())
+			return true;
+		
+		model.Project.Save();
+		return false;
+	}
+	
 }
