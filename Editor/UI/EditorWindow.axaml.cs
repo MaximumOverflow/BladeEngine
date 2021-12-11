@@ -10,10 +10,15 @@ namespace BladeEngine.Editor.UI;
 
 public sealed class EditorWindow : Window
 {
+	public static EditorWindow Instance { get; private set; }
 	private readonly RenderControl _render;
 	
+	public event Action<Project>? OnProjectOpened;
+	public event Action? OnProjectClosed;
+
 	public EditorWindow()
 	{
+		Instance = this;
 		// OpenGL.Initialize(new WindowOptions{Size = new Vector2D<int>(800, 600), Title = "GL", IsVisible = false});
 		DataContext = new EditorModel();
 		AvaloniaXamlLoader.Load(this);
@@ -33,6 +38,7 @@ public sealed class EditorWindow : Window
 		
 		((EditorModel) DataContext!).ProjectModel = new ProjectModel(project);
 		Title = $"{project.AssemblyName} - Blade - {Graphics.CurrentApi}";
+		OnProjectOpened?.Invoke(project);
 	}
 
 	private async void OpenProject(object? sender, RoutedEventArgs e)
@@ -47,6 +53,7 @@ public sealed class EditorWindow : Window
 		((EditorModel) DataContext!).ProjectModel = new ProjectModel(project);
 		Title = $"{project.AssemblyName} - Blade - {Graphics.CurrentApi}";
 		Debug.Log("Opened project '{0}'", path);
+		OnProjectOpened?.Invoke(project);
 	}
 	
 	private void SaveProject(object? sender, RoutedEventArgs? e)
@@ -59,6 +66,7 @@ public sealed class EditorWindow : Window
 	private void CloseProject(object? sender, RoutedEventArgs? e)
 	{
 		//TODO Ask if user wants to save the current project
+		OnProjectClosed?.Invoke();
 		((EditorModel) DataContext!).ProjectModel = null;
 		Debug.Log("Project closed");
 	}

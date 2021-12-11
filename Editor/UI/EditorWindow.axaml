@@ -46,7 +46,7 @@
            </MenuItem>
        </Menu>
        
-       <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, *, Auto, Auto">
+       <Grid Grid.Row="1" ColumnDefinitions="192, Auto, *, Auto, 192">
            <!-- Left -->
            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
            <TabControl Grid.Column="0">
@@ -64,11 +64,12 @@
            </TabControl>
         
            <!-- Center -->
-           <Grid Grid.Column="2" RowDefinitions="*, Auto, Auto">
+           <Grid Grid.Column="2" RowDefinitions="*, Auto, 256">
                <rendering:RenderView Grid.Row="0"/>
                
                <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
                <TabControl Grid.Row="2">
+                   <TabItem Header="Files"><editor:FileExplorer/></TabItem>
                    <TabItem Header="Console"><editor:Console/></TabItem>
                    <TabItem Header="Tasks"><editor:TaskViewer/></TabItem>
                </TabControl>

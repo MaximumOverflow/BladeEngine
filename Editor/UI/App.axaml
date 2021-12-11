@@ -3,6 +3,7 @@
              x:Class="BladeEngine.Editor.UI.App">
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
+        <StyleInclude Source="avares://Material.Icons.Avalonia/App.xaml"></StyleInclude>
         
         <Style Selector="Window">
             <Setter Property="Background" Value="#333233"/>

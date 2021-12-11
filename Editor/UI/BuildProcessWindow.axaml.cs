@@ -1,6 +1,4 @@
-﻿using BladeEngine.Editor.CodeGeneration;
-using Avalonia.Markup.Xaml;
-using System.Diagnostics;
+﻿using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.Controls;
 using Avalonia;

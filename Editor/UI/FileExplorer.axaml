@@ -1,0 +1,64 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:ui="clr-namespace:BladeEngine.Editor.UI"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="BladeEngine.Editor.UI.FileExplorer">
+    
+    <Grid ColumnDefinitions="192, Auto, *">
+        
+        <ScrollViewer Grid.Column="0">
+            <TreeView Items="{Binding Tree}" SelectionChanged="OnTreeSelectionChanged">
+                <TreeView.DataTemplates>
+                    <TreeDataTemplate DataType="ui:TreeEntry" ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding Name}" FontSize="16"/>
+                    </TreeDataTemplate>
+                    <DataTemplate DataType="ui:TreeEntry">
+                        <TextBlock Text="{Binding Name}" FontSize="16"/>
+                    </DataTemplate>    
+                </TreeView.DataTemplates>
+            </TreeView>
+        </ScrollViewer>
+        
+        <GridSplitter Grid.Column="1"/>
+        
+        <ScrollViewer Grid.Column="2">
+            <ItemsControl Items="{Binding Entries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel VerticalAlignment="Center" Margin="8" MaxWidth="96" MinWidth="96" Name="File"  PointerReleased="OnEntryClicked">
+                            <avalonia:MaterialIcon Name="Icon" Kind="{Binding Icon}" Width="64" Height="96"/>
+                            <TextBlock Name="Name" Text="{Binding Name}" FontSize="16" VerticalAlignment="Center" TextAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Open"     Click="Open"/>
+                                    <MenuItem Header="Copy"     Click="Copy"    IsEnabled="False"/>
+                                    <MenuItem Header="Rename"   Click="Rename"  IsEnabled="False"/>
+                                    <MenuItem Header="Delete"   Click="Delete"  IsEnabled="{Binding Editable}"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                            
+                            <ToolTip.Tip><TextBlock Text="{Binding Name}"/></ToolTip.Tip>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+    
+    <UserControl.Styles>
+        <Style Selector="WrapPanel"><Setter Property="Background" Value="#333233"/></Style>
+        <Style Selector="StackPanel#File:focused"><Setter Property="Background" Value="#444344"/></Style>
+        <Style Selector="StackPanel#File:pointerover"><Setter Property="Background" Value="#444344"/></Style>
+    </UserControl.Styles>
+</UserControl>

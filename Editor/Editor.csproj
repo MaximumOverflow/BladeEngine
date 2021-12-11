@@ -21,6 +21,7 @@
       <PackageReference Include="Avalonia.Desktop" Version="0.10.10" />
       <PackageReference Include="Avalonia.Diagnostics" Version="0.10.10" />
       <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.10" />
+      <PackageReference Include="Material.Icons.Avalonia" Version="1.0.2" />
       <PackageReference Include="Microsoft.Build" Version="17.0.0" />
       <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
     </ItemGroup>
@@ -59,6 +60,12 @@
         <Compile Update="UI\TaskViewer.axaml.cs">
           <DependentUpon>TaskViewer.axaml</DependentUpon>
           <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="UI\FileEntry.cs">
+          <DependentUpon>FileExplorer.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="UI\TreeEntry.cs">
+          <DependentUpon>FileExplorer.axaml</DependentUpon>
         </Compile>
     </ItemGroup>
     
