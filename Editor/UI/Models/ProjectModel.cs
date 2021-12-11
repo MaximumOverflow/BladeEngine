@@ -11,7 +11,7 @@ public sealed class ProjectModel : ReactiveObject
 	{
 		Project = project;
 	}
-
+	
 	public string AssemblyName
 	{
 		get => Project.AssemblyName;
@@ -52,6 +52,6 @@ public sealed class ProjectModel : ReactiveObject
 
 		return true;
 	}
-
+	
 	public static implicit operator Project(ProjectModel m) => m.Project;
 }

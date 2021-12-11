@@ -1,11 +1,11 @@
 ﻿using BladeEngine.Editor.UI.Models;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia;
-using Avalonia.Threading;
 
 namespace BladeEngine.Editor.UI;
 
@@ -84,7 +84,12 @@ public class ProjectSettings : Window
 		if (base.HandleClosing())
 			return true;
 		
-		model.Project.Save();
+		async Task Save()
+		{
+			await model.Project.Save();
+		}
+
+		Save().ConfigureAwait(false);
 		return false;
 	}
 }

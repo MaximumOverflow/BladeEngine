@@ -1,0 +1,12 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="64"
+             x:Class="BladeEngine.Editor.UI.TaskEntry">
+    <Grid Margin="16">
+        <TextBlock Name="Name" Text="Task name"   FontSize="24" HorizontalAlignment="Left"/>
+        <TextBlock Name="Status" Text="Running..." FontSize="24" HorizontalAlignment="Center"/>
+        <TextBlock Name="Elapsed" Text="00:01:33" FontSize="24" HorizontalAlignment="Right"/>
+    </Grid>
+</UserControl>

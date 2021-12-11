@@ -27,8 +27,8 @@ public class BuildProcessWindow : Window
 	public async Task<int> Open(Window window, Project project)
 	{
 		Title = $"Building {project.AssemblyName}...";
-		
-		Show(window);
+
+		ShowDialog(window);
 		var exe = new Executable(project);
 		var result = await exe.Build(s => Dispatcher.UIThread.InvokeAsync(() =>
 		{
