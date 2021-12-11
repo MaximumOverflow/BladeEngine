@@ -1,4 +1,5 @@
 ﻿using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -20,9 +21,14 @@ public class Console : UserControl
 		_command = this.FindControl<AutoCompleteBox>("Command");
 		
 		//Warning This could lead to a memory leak when destroying the control
-		Debug.OnLog += s => _text.Text += s + '\n';
+		Debug.OnLog += OnLog;
 		
 		RegisterCommands();
+	}
+
+	private void OnLog(string? text)
+	{
+		Dispatcher.UIThread.InvokeAsync(() => _text.Text += text + '\n');
 	}
 
 	private void InputElement_OnKeyDown(object? _, KeyEventArgs e)
@@ -79,12 +85,12 @@ public class Console : UserControl
 
 	public bool RegisterCommand(Type type)
 	{
-		if (type.IsInterface || type.IsAbstract)
+		if (type.IsInterface || type.IsAbstract || !type.IsAssignableTo(typeof(ICommand)))
 			return false;
 
 		if (Activator.CreateInstance(type) is not ICommand command)
 		{
-			Debug.LogError("Could not add command. All commands must be default constructable.");
+			Debug.LogError($"Could not add command {type.FullName}. All commands must be default constructable.");
 			return false;
 		}
 
