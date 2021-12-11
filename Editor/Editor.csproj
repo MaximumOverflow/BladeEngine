@@ -56,6 +56,10 @@
         <Compile Update="UI\NewProjectDialog.axaml.cs">
           <DependentUpon>NewProjectDialog.axaml</DependentUpon>
         </Compile>
+        <Compile Update="UI\TaskViewer.axaml.cs">
+          <DependentUpon>TaskViewer.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
     
     <ItemGroup>
@@ -68,6 +72,9 @@
       </AvaloniaXaml>
       <AvaloniaXaml Update="UI\PackageEntry.axaml">
         <DependentUpon>ProjectSettings.axaml</DependentUpon>
+      </AvaloniaXaml>
+      <AvaloniaXaml Update="UI\TaskEntry.axaml">
+        <DependentUpon>TaskViewer.axaml</DependentUpon>
       </AvaloniaXaml>
     </ItemGroup>
 

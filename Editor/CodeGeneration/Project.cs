@@ -24,6 +24,7 @@ public enum BuildType
 
 public class Project
 {
+	private readonly object _saveLock = new();
 	internal static readonly Regex NameRegex = new("[a-zA-Z][a-zA-Z_0-9]*", RegexOptions.Compiled);
 	internal static readonly Regex NamespaceRegex = new("[a-zA-Z][a-zA-Z_0-9]*(\\.[a-zA-Z][a-zA-Z_0-9]*)*", RegexOptions.Compiled);
 
@@ -124,12 +125,14 @@ public class Project
 		}
 
 		proj.Save();
-		return new Project(file);
+		return new Project(file){_packagesEdited = true};
 	}
 
 	#endregion
 
 	#region Properties
+
+	public bool IsSaving => Monitor.IsEntered(_saveLock);
 	
 	public IReadOnlyDictionary<string, NuGetVersion?> Packages => _packages;
 	public IReadOnlyDictionary<string, ProjectItemElement> Items => _items;
@@ -168,7 +171,7 @@ public class Project
 	public string EngineAssemblyPath
 	{
 		get => _items[nameof(EngineAssemblyPath)].Metadata.First().Value;
-		set => _items[nameof(EngineAssemblyPath)].Metadata.First().Value = value;
+		init => _items[nameof(EngineAssemblyPath)].Metadata.First().Value = value;
 	}
 
 	#endregion
@@ -189,20 +192,25 @@ public class Project
 		return true;
 	}
 
-	public void Save()
+	public Task Save()
 	{
-		var path = Path.Combine(File.FullName);
-		_root.Save(path);
-
-		if (_packagesEdited)
+		return Concurrency.ScheduleTask(async () =>
 		{
-			Process.Start(new ProcessStartInfo("dotnet", "restore")
+			Monitor.Enter(_saveLock);
+			var path = Path.Combine(File.FullName);
+			_root.Save(path);
+
+			if (_packagesEdited)
 			{
-				WorkingDirectory = File.Directory!.FullName, 
-				CreateNoWindow = false, UseShellExecute = false,
-			})!.WaitForExit();
-			_packagesEdited = false;
-		}
+				await Process.Start(new ProcessStartInfo("dotnet", "restore")
+				{
+					WorkingDirectory = File.Directory!.FullName,
+					CreateNoWindow = false, UseShellExecute = false,
+				})!.WaitForExitAsync();
+				_packagesEdited = false;
+			}
+			Monitor.Exit(_saveLock);
+		}, "Save project", onAbort: _ => Monitor.Exit(_saveLock));
 	}
 
 	public override string ToString()

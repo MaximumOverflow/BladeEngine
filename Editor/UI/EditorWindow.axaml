@@ -22,7 +22,7 @@
                <Separator/>
                <MenuItem Header="Run" IsEnabled="{Binding !!ProjectModel}"/>
                <MenuItem Header="Build" Click="Build" IsEnabled="{Binding !!ProjectModel}"/>
-               <MenuItem Header="Build and Run" Click="BuildAndRun" IsEnabled="{Binding !!ProjectModel}"/>
+               <MenuItem Header="Build and Run" Click="BuildAndRun" IsEnabled="False"/>
                <Separator/>
                <MenuItem Header="Exit" Click="Exit"/>
            </MenuItem>
@@ -70,6 +70,7 @@
                <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
                <TabControl Grid.Row="2">
                    <TabItem Header="Console"><editor:Console/></TabItem>
+                   <TabItem Header="Tasks"><editor:TaskViewer/></TabItem>
                </TabControl>
            </Grid>
        </Grid>
