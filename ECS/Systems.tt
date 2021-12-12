@@ -1,0 +1,80 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+namespace BladeEngine.ECS;
+
+public interface ISystem
+{
+	public Archetype Archetype { get; }
+	internal void Run(ArchetypeBuffer buffer);
+	protected static readonly ParallelOptions ParallelOptions = new()
+	{
+		MaxDegreeOfParallelism = Environment.ProcessorCount / 2
+	};
+}
+
+<#
+	void PrintTypes(int count)
+	{
+		for (var i = 0; i <= count; i++)
+		{
+			Write($"T{i}");
+			if(i < count) Write(", ");
+		}
+	}
+	
+	void PrintParams(int count)
+	{
+		for (var i = 0; i <= count; i++)
+		{
+			Write($"ref T{i} t{i}");
+			if(i < count) Write(", ");
+		}
+	}
+
+	void PrintRestrictions(int count)
+	{
+		for (var i = 0; i <= count; i++)
+			WriteLine($"where T{i} : unmanaged, IComponent");
+	}
+	
+	void PrintGetComponentSpan(int count)
+	{
+		for (var i = 0; i <= count; i++)
+			WriteLine($"\t\t\tvar t{i} = chunk.GetComponentSpan<T{i}>();");
+	}
+	
+	void PrintArgs(int count)
+	{
+		for (var i = 0; i <= count; i++)
+		{
+			Write($"ref t{i}[i]");
+			if(i < count) Write(", ");
+		}
+	}
+#>
+
+<#
+	for (var i = 0; i < 16; i++)
+	{
+#>
+public abstract class System<<#PrintTypes(i);#>> : ISystem
+<#PrintRestrictions(i);#>
+{
+	public abstract Archetype Archetype { get; }
+	protected abstract void Run(<#PrintParams(i);#>);
+	
+	void ISystem.Run(ArchetypeBuffer buffer)
+	{
+		Parallel.ForEach(buffer.Chunks, ISystem.ParallelOptions, chunk =>
+		{
+			chunk.Compact();
+<#PrintGetComponentSpan(i);#>
+			for(var i = 0; i < t0.Length; i++) Run(<#PrintArgs(i);#>);
+		});
+	}
+}
+<#
+	}
+#>
