@@ -122,7 +122,7 @@ public sealed class EcsContext
 			foreach (var buffer in _buffers)
 			{
 				if(!buffer.Archetype.ComponentTypes.IsSubsetOf(archetype.ComponentTypes)) continue;
-				system.Run(buffer);
+				system.ExecutionDelegate(buffer);
 			}
 		}
 	}
