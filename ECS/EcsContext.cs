@@ -4,40 +4,32 @@ namespace BladeEngine.ECS;
 
 public sealed class EcsContext
 {
-	private InternalEntity[] _entities;
 	private readonly List<ArchetypeBuffer> _buffers;
 	private readonly Dictionary<Type, ISystem> _systems;
 	private readonly Dictionary<int, Archetype> _archetypes;
 
-	private int[] _freeEntities;
 	private int _freeEntityCount;
-	
+	private EntityInstance[] _freeEntities;
+
 	private Bitfield _bitfield = new();
 
 	public EcsContext(int initialCapacity = 128)
 	{
-		_freeEntities = new int[initialCapacity];
 		_buffers = new List<ArchetypeBuffer>();
 		_systems = new Dictionary<Type, ISystem>();
-		_entities = new InternalEntity[initialCapacity];
 		_archetypes = new Dictionary<int, Archetype>();
-		for (var i = 0; i < initialCapacity; i++) _entities[i] = new InternalEntity{Version = 1};
-		for (var i = initialCapacity - 1; i >= 0; i--) _freeEntities[_freeEntityCount++] = i;
+		_freeEntities = new EntityInstance[initialCapacity];
 	}
 
 	public int ArchetypeCount => _archetypes.Count;
 
 	public Entity CreateEntity()
 	{
-		if (_freeEntityCount > 0)
-		{
-			var id = _freeEntities[--_freeEntityCount];
-			return new Entity {Id = id, Version = ++_entities[id].Version};
-		}
+		if (_freeEntityCount == 0)
+			return new Entity {Instance = new EntityInstance {Version = 1}, Version = 1};
 		
-		DoubleEntityBuffer();
-		var id0 = _freeEntities[--_freeEntityCount];
-		return new Entity {Id = id0, Version = ++_entities[id0].Version};
+		var instance = _freeEntities[--_freeEntityCount];
+		return new Entity {Instance = instance, Version = ++instance.Version};
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -46,35 +38,27 @@ public sealed class EcsContext
 		var buffer = _buffers[archetype.Id];
 		var slot = buffer.GetSlot();
 
-		Entity entity;
-		if (_freeEntityCount > 0)
-		{
-			var id = _freeEntities[--_freeEntityCount];
-			entity = new  Entity {Id = id, Version = ++_entities[id].Version};
-		}
-		else
-		{
-			DoubleEntityBuffer();
-			var id0 = _freeEntities[--_freeEntityCount];
-			entity = new Entity {Id = id0, Version = ++_entities[id0].Version};
-		}
+		if (_freeEntityCount == 0)
+			return new Entity {Instance = new EntityInstance {Version = 1, Slot = slot}, Version = 1};
 		
-		_entities[entity.Id].Slot = slot;
-		return entity;
+		var instance = _freeEntities[--_freeEntityCount];
+
+		instance.Slot = slot;
+		return new Entity {Instance = instance, Version = ++instance.Version};
 	}
 
 	public void DestroyEntity(Entity entity)
 	{
-		if (_entities[entity.Id].Version != entity.Version)
+		var instance = entity.Instance;
+		if (entity.Version != instance.Version)
 			throw new InvalidOperationException("Entity already destroyed.");
 		
 		if (_freeEntities.Length == _freeEntityCount)
 			Array.Resize(ref _freeEntities, _freeEntityCount * 2);
 		
-		_freeEntities[_freeEntityCount++] = entity.Id;
-		var e = _entities[entity.Id];
-		e.Slot?.Chunk.ReturnSlot(e.Slot);
-		e.Version++; e.Slot = null;
+		_freeEntities[_freeEntityCount++] = instance;
+		instance.Slot?.Chunk.ReturnSlot(instance.Slot);
+		instance.Version++; instance.Slot = null;
 	}
 	
 	public void DestroyEntity(Span<Entity> entities)
@@ -85,13 +69,13 @@ public sealed class EcsContext
 		for (var i = 0; i < entities.Length; i++)
 		{
 			var entity = entities[i];
-			if (_entities[entity.Id].Version != entity.Version)
+			var instance = entity.Instance;
+			if (entity.Version != instance.Version)
 				throw new InvalidOperationException("Entity already destroyed.");
 			
-			_freeEntities[_freeEntityCount++] = entity.Id;
-			var e = _entities[entity.Id];
-			e.Slot?.Chunk.ReturnSlot(e.Slot);
-			e.Version++; e.Slot = null;
+			_freeEntities[_freeEntityCount++] = instance;
+			instance.Slot?.Chunk.ReturnSlot(instance.Slot);
+			instance.Version++; instance.Slot = null;
 		}
 	}
 	
@@ -120,9 +104,9 @@ public sealed class EcsContext
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public ref T GetComponentRef<T>(Entity entity) where T : unmanaged, IComponent
 	{
-		var e = _entities[entity.Id];
-		if (e.Slot is null) throw new InvalidOperationException("Component is not attached to the entity.");
-		return ref e.Slot.Chunk.GetComponentRefUnsafe<T>(e.Slot.Slot);
+		var instance = entity.Instance;
+		if (instance.Slot is null) throw new InvalidOperationException("Component is not attached to the entity.");
+		return ref instance.Slot.Chunk.GetComponentRefUnsafe<T>(instance.Slot.Slot);
 	}
 
 	public bool RegisterSystem(ISystem system)
@@ -141,18 +125,5 @@ public sealed class EcsContext
 				system.Run(buffer);
 			}
 		}
-	}
-
-	private void DoubleEntityBuffer()
-	{
-		var size = _entities.Length;
-		var newSize = _entities.Length * 2;
-		Array.Resize(ref _entities, newSize);
-		for (var i = size; i < newSize; i++) _entities[i] = new InternalEntity{Version = 1};
-
-		if (_freeEntities.Length - _freeEntityCount < size)
-			Array.Resize(ref _freeEntities, _freeEntities.Length + size - _freeEntityCount);
-
-		for (var i = newSize - 1; i >= size; i--) _freeEntities[_freeEntityCount++] = i;
 	}
 }

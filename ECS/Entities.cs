@@ -2,29 +2,26 @@
 
 public struct Entity
 {
-	internal int Id;
 	internal int Version;
+	internal EntityInstance Instance;
 
 	public static bool operator ==(Entity a, Entity b)
-		=> a.Id == b.Id && a.Version == b.Version;
+		=> a.Instance == b.Instance && a.Version == b.Version;
 
 	public static bool operator !=(Entity a, Entity b) 
-		=> a.Id != b.Id || a.Version != b.Version;
+		=> a.Instance != b.Instance || a.Version != b.Version;
 
 	public bool Equals(Entity other)
-		=> Id == other.Id && Version == other.Version;
+		=> Instance == other.Instance && Version == other.Version;
 
 	public override bool Equals(object? obj)
 		=> obj is Entity other && Equals(other);
 
 	public override int GetHashCode()
-		=> unchecked((Id * 397) ^ Version);
-
-	public override string ToString()
-		=> $"Entity {{ Id = {Id}, Version = {Version} }}";
+		=> unchecked((Instance.GetHashCode() * 397) ^ Version);
 }
 
-internal class InternalEntity
+internal class EntityInstance
 {
 	internal int Version;
 	internal ArchetypeSlot? Slot;

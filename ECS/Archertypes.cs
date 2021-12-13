@@ -41,16 +41,11 @@ public class ArchetypeBuffer
 		for (var i = 0; i < span.Length; i++)
 		{
 			var chunk = span[i];
-			if (chunk.TryGetSlot(out var slot))
-			{
-				if (chunk.UsedSlots == ArchetypeBufferChunk.Size)
-				{
-					_chunks.RemoveAt(i);
-					_chunks.Add(chunk);
-				}
-				if(i != 0) SortByUsedSlots();
-				return slot!;
-			}
+			if (!chunk.TryGetSlot(out var slot)) continue;
+			if (chunk.UsedSlots != ArchetypeBufferChunk.Size) return slot!;
+			_chunks.RemoveAt(i);
+			_chunks.Add(chunk);
+			return slot!;
 		}
 
 		var newChunk = new ArchetypeBufferChunk(this);
