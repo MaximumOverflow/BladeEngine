@@ -23,30 +23,32 @@ internal class ArchetypeSlot
 	}
 }
 
-internal class ArchetypeBuffer
+public class ArchetypeBuffer
 {
-	public readonly Archetype Archetype;
+	internal readonly Archetype Archetype;
 	private readonly List<ArchetypeBufferChunk> _chunks;
 	public IReadOnlyList<ArchetypeBufferChunk> Chunks => _chunks;
 
-	public ArchetypeBuffer(Archetype archetype)
+	internal ArchetypeBuffer(Archetype archetype)
 	{
 		Archetype = archetype;
 		_chunks = new List<ArchetypeBufferChunk>();
 	}
 
-	public ArchetypeSlot GetSlot()
+	internal ArchetypeSlot GetSlot()
 	{
 		var span = CollectionsMarshal.AsSpan(_chunks);
 		for (var i = 0; i < span.Length; i++)
 		{
-			if (span[i].TryGetSlot(out var slot))
+			var chunk = span[i];
+			if (chunk.TryGetSlot(out var slot))
 			{
-				if(i != 0) span.Sort((a, b) =>
+				if (chunk.UsedSlots == ArchetypeBufferChunk.Size)
 				{
-					if (a.UsedSlots == b.UsedSlots) return 0;
-					return b.UsedSlots == 0 ? -1 : a.UsedSlots.CompareTo(b.UsedSlots);
-				});
+					_chunks.RemoveAt(i);
+					_chunks.Add(chunk);
+				}
+				if(i != 0) SortByUsedSlots();
 				return slot!;
 			}
 		}
@@ -63,15 +65,19 @@ internal class ArchetypeBuffer
 		span.Sort((a, b) =>
 		{
 			if (a.UsedSlots == b.UsedSlots) return 0;
-			return b.UsedSlots == 0 ? -1 : a.UsedSlots.CompareTo(b.UsedSlots);
+			if (b.UsedSlots == ArchetypeBufferChunk.Size) return -1;
+			if (a.UsedSlots == ArchetypeBufferChunk.Size) return +1;
+			if (a.UsedSlots == 0) return +1;
+			if (b.UsedSlots == 0) return -1;
+			return a.UsedSlots.CompareTo(b.UsedSlots);
 		});
 	}
 }
 
-internal unsafe class ArchetypeBufferChunk : IDisposable
+public unsafe class ArchetypeBufferChunk : IDisposable
 {
-	public const int Size = 256;
-	public readonly Archetype Archetype;
+	internal const int Size = 256;
+	private readonly Archetype Archetype;
 
 	//Do not edit outside of this class
 	public int UsedSlots;
@@ -80,7 +86,7 @@ internal unsafe class ArchetypeBufferChunk : IDisposable
 	private readonly ArchetypeSlot[] _slots;
 	private readonly Dictionary<int, IntPtr> _buffers;
 
-	public ArchetypeBufferChunk(ArchetypeBuffer buffer)
+	internal ArchetypeBufferChunk(ArchetypeBuffer buffer)
 	{
 		Archetype = buffer.Archetype;
 		_slots = new ArchetypeSlot[Size];
@@ -94,7 +100,7 @@ internal unsafe class ArchetypeBufferChunk : IDisposable
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryGetSlot(out ArchetypeSlot? slot)
+	internal bool TryGetSlot(out ArchetypeSlot? slot)
 	{
 		if (UsedSlots == Size)
 		{
@@ -107,7 +113,7 @@ internal unsafe class ArchetypeBufferChunk : IDisposable
 		return true;
 	}
 
-	public void ReturnSlot(ArchetypeSlot slot)
+	internal void ReturnSlot(ArchetypeSlot slot)
 	{
 		_requiresCompacting = true;
 		slot.Taken = false;
