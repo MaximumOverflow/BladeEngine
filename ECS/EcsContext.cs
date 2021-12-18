@@ -102,7 +102,7 @@ public sealed class EcsContext
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public ref T GetComponentRef<T>(Entity entity) where T : unmanaged, IComponent
+	public ref T GetComponentRef<T>(Entity entity) where T : struct, IComponent
 	{
 		var instance = entity.Instance;
 		if (instance.Slot is null) throw new InvalidOperationException("Component is not attached to the entity.");

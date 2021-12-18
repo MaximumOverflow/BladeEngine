@@ -69,7 +69,7 @@ public class ArchetypeBuffer
 	}
 }
 
-public unsafe class ArchetypeBufferChunk : IDisposable
+public unsafe class ArchetypeBufferChunk
 {
 	internal const int Size = 256;
 	private readonly Archetype Archetype;
@@ -79,19 +79,19 @@ public unsafe class ArchetypeBufferChunk : IDisposable
 	private bool _requiresCompacting;
 
 	private readonly ArchetypeSlot[] _slots;
-	private readonly Dictionary<int, IntPtr> _buffers;
+	private readonly Dictionary<int, object> _buffers;
 
 	internal ArchetypeBufferChunk(ArchetypeBuffer buffer)
 	{
 		Archetype = buffer.Archetype;
 		_slots = new ArchetypeSlot[Size];
-		_buffers = new Dictionary<int, IntPtr>(buffer.Archetype.ComponentTypes.Count);
+		_buffers = new Dictionary<int, object>(buffer.Archetype.ComponentTypes.Count);
 		
 		for (var i = 0; i < _slots.Length; i++)
 			_slots[i] = new ArchetypeSlot(i, this);
 		
 		foreach (var type in buffer.Archetype.ComponentTypes)
-			_buffers.Add(type.Id, (IntPtr) NativeMemory.Alloc((nuint) (Size * type.Size)));
+			_buffers.Add(type.Id, type.CreateArray(Size));
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,14 +125,18 @@ public unsafe class ArchetypeBufferChunk : IDisposable
 		var types = _slots[0].Chunk.Archetype.ComponentTypes;
 		foreach (var type in types)
 		{
-			var buffer = (byte*) _buffers[type.Id];
-			var insert = buffer;
-			for (var i = 0; i < UsedSlots; i++)
+			fixed (byte* buffer = Unsafe.As<byte[]>(_buffers[type.Id]))
 			{
-				var slot = _slots[i];
-				var source = buffer + type.Size * slot.Slot;
-				Unsafe.CopyBlock(insert, source, (uint) type.Size);
-				insert += type.Size;
+				var insert = buffer;
+				for (var i = 0; i < UsedSlots; i++)
+				{
+					var slot = _slots[i];
+					var source = buffer + type.Size * slot.Slot;
+					Unsafe.CopyBlock(insert, source, (uint) type.Size);
+					insert += type.Size;
+				}
+				
+				Unsafe.InitBlock(buffer + type.Size * UsedSlots, 0, (uint) (type.Size * (Size - UsedSlots)));
 			}
 		}
 
@@ -142,22 +146,16 @@ public unsafe class ArchetypeBufferChunk : IDisposable
 		_requiresCompacting = false;
 		return true;
 	}
-
+	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public Span<T> GetComponentSpan<T>() where T : unmanaged, IComponent
+	public Span<T> GetComponentSpan<T>() where T : struct, IComponent
 	{
-		return new Span<T>((void*) _buffers[ComponentType<T>.ComponentId], UsedSlots);
+		return Unsafe.As<T[]>(_buffers[ComponentType<T>.ComponentId]).AsSpan(0, UsedSlots);
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public ref T GetComponentRefUnsafe<T>(int index) where T : unmanaged, IComponent
+	public ref T GetComponentRefUnsafe<T>(int index) where T : struct, IComponent
 	{
-		return ref ((T*) _buffers[ComponentType<T>.ComponentId])[index];
-	}
-
-	public void Dispose()
-	{
-		foreach (var buffer in _buffers.Values)
-			NativeMemory.Free((void*) buffer);
+		return ref Unsafe.As<T[]>(_buffers[ComponentType<T>.ComponentId])[index];
 	}
 }

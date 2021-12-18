@@ -1,4 +1,6 @@
-﻿namespace BladeEngine.ECS;
+﻿using System.Runtime.CompilerServices;
+
+namespace BladeEngine.ECS;
 
 public interface IComponent {}
 
@@ -10,14 +12,20 @@ public readonly struct ComponentType
 	
 	internal int Id { get; init; }
 	internal int Size { get; init; }
+	internal Func<int, object> CreateArray { get; init; }
+	
 	public override int GetHashCode() => Id;
 }
 
-public unsafe class ComponentType<T> where T : unmanaged, IComponent
+public unsafe class ComponentType<T> where T : struct, IComponent
 {
 	public static readonly int ComponentId = ComponentType.GetId();
 	public static implicit operator ComponentType(ComponentType<T> _) => new()
 	{
-		Id = ComponentId, Size = sizeof(T)
+		Id = ComponentId, 
+		Size = Unsafe.SizeOf<T>(),
+		CreateArray = CreateArray
 	};
+
+	public static T[] CreateArray(int size) => new T[size];
 }
