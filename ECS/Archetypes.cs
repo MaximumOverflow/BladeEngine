@@ -1,12 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using FastExpressionCompiler.LightExpression;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace BladeEngine.ECS;
 
 public readonly struct Archetype
 {
 	internal int Id { get; init; }
-	internal IReadOnlySet<ComponentType> ComponentTypes { get; init; }
+	public Bitfield ComponentTypes { get; init; }
+
+	public override int GetHashCode() => Id;
+	public static bool operator ==(in Archetype a, in Archetype b) => a.Id == b.Id;
+	public static bool operator !=(in Archetype a, in Archetype b) => a.Id != b.Id;
 }
 
 internal class ArchetypeSlot
@@ -29,7 +36,7 @@ public class ArchetypeBuffer
 	private readonly List<ArchetypeBufferChunk> _chunks;
 	public IReadOnlyList<ArchetypeBufferChunk> Chunks => _chunks;
 
-	internal ArchetypeBuffer(Archetype archetype)
+	internal ArchetypeBuffer(in Archetype archetype)
 	{
 		Archetype = archetype;
 		_chunks = new List<ArchetypeBufferChunk>();
@@ -67,31 +74,39 @@ public class ArchetypeBuffer
 			return a.UsedSlots.CompareTo(b.UsedSlots);
 		});
 	}
+
+	public void Trim()
+	{
+		_chunks.RemoveAll(c => c.UsedSlots == 0);
+	}
 }
 
 public unsafe class ArchetypeBufferChunk
 {
 	internal const int Size = 256;
-	private readonly Archetype Archetype;
+	internal readonly Archetype Archetype;
 
 	//Do not edit outside of this class
 	public int UsedSlots;
 	private bool _requiresCompacting;
 
+	private readonly object[] _buffers;
 	private readonly ArchetypeSlot[] _slots;
-	private readonly Dictionary<int, object> _buffers;
+	private readonly GetBufferFunc GetBuffer;
 
 	internal ArchetypeBufferChunk(ArchetypeBuffer buffer)
 	{
 		Archetype = buffer.Archetype;
 		_slots = new ArchetypeSlot[Size];
-		_buffers = new Dictionary<int, object>(buffer.Archetype.ComponentTypes.Count);
 		
 		for (var i = 0; i < _slots.Length; i++)
 			_slots[i] = new ArchetypeSlot(i, this);
-		
-		foreach (var type in buffer.Archetype.ComponentTypes)
-			_buffers.Add(type.Id, type.CreateArray(Size));
+
+		var linear = new List<object>();
+		foreach (var type in buffer.Archetype.ComponentTypes.EnumerateComponentTypes())
+			linear.Add(type.CreateArray(Size));
+		_buffers = linear.ToArray();
+		GetBuffer = MakeGetBufferFunc(Archetype);
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,9 +138,9 @@ public unsafe class ArchetypeBufferChunk
 		
 		//Compact buffer memory
 		var types = _slots[0].Chunk.Archetype.ComponentTypes;
-		foreach (var type in types)
+		foreach (var type in types.EnumerateComponentTypes())
 		{
-			fixed (byte* buffer = Unsafe.As<byte[]>(_buffers[type.Id]))
+			fixed (byte* buffer = Unsafe.As<byte[]>(GetBuffer(this, type.Id)))
 			{
 				var insert = buffer;
 				for (var i = 0; i < UsedSlots; i++)
@@ -150,12 +165,52 @@ public unsafe class ArchetypeBufferChunk
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public Span<T> GetComponentSpan<T>() where T : struct, IComponent
 	{
-		return Unsafe.As<T[]>(_buffers[ComponentType<T>.ComponentId]).AsSpan(0, UsedSlots);
+		var buffer = GetBuffer(this, ComponentType<T>.ComponentId);
+		return Unsafe.As<T[]>(buffer).AsSpan(0, UsedSlots);
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public ref T GetComponentRefUnsafe<T>(int index) where T : struct, IComponent
 	{
-		return ref Unsafe.As<T[]>(_buffers[ComponentType<T>.ComponentId])[index];
+		var buffer = GetBuffer(this, ComponentType<T>.ComponentId);
+		return ref Unsafe.As<T[]>(buffer)[index];
 	}
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public void* GetComponentPtrUnsafe(in ComponentType type, int index)
+	{
+		var buffer = GetBuffer(this, type.Id);
+		fixed (byte* ptr = Unsafe.As<byte[]>(buffer))
+			return ptr + type.Size * index;
+	}
+
+	#region CodeGeneration
+
+	private delegate object GetBufferFunc(ArchetypeBufferChunk chunk, int typeId);
+	private static readonly ConcurrentDictionary<int, GetBufferFunc> GetBufferFuncs = new();
+
+	private static GetBufferFunc MakeGetBufferFunc(Archetype archetype)
+	{
+		if (GetBufferFuncs.TryGetValue(archetype.Id, out var func))
+			return func;
+
+		//Parameters
+		var chunk = Expression.Parameter(typeof(ArchetypeBufferChunk), "chunk");
+		var typeId = Expression.Parameter(typeof(int), "typeId");
+
+		//Switch
+		var cases = new List<SwitchCase>();
+		var buffers = typeof(ArchetypeBufferChunk).GetField(nameof(_buffers), BindingFlags.NonPublic | BindingFlags.Instance)!;
+		foreach (var type in archetype.ComponentTypes.EnumerateComponentTypes())
+		{
+			var value = Expression.ArrayAccess(Expression.MakeMemberAccess(chunk, buffers), Expression.Constant(cases.Count));
+			cases.Add(Expression.SwitchCase(value, Expression.Constant(type.Id)));
+		}
+		var @switch = Expression.Switch(typeId, Expression.Constant(null, typeof(object)), cases.ToArray());
+		func = Expression.Lambda<GetBufferFunc>(@switch, chunk, typeId).CompileFast();
+		GetBufferFuncs.TryAdd(archetype.Id, func);
+		return func;
+	}
+
+	#endregion
 }
