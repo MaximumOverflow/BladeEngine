@@ -14,6 +14,9 @@ public readonly struct Archetype
 	public override int GetHashCode() => Id;
 	public static bool operator ==(in Archetype a, in Archetype b) => a.Id == b.Id;
 	public static bool operator !=(in Archetype a, in Archetype b) => a.Id != b.Id;
+
+	public bool Equals(Archetype other) => Id == other.Id;
+	public override bool Equals(object? obj) => obj is Archetype other && Equals(other);
 }
 
 internal class ArchetypeSlot
@@ -163,14 +166,14 @@ public unsafe class ArchetypeBufferChunk
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public Span<T> GetComponentSpan<T>() where T : struct, IComponent
+	public Span<T> GetComponentSpan<T>() where T : struct
 	{
 		var buffer = GetBuffer(this, ComponentType<T>.ComponentId);
 		return Unsafe.As<T[]>(buffer).AsSpan(0, UsedSlots);
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public ref T GetComponentRefUnsafe<T>(int index) where T : struct, IComponent
+	public ref T GetComponentRefUnsafe<T>(int index) where T : struct
 	{
 		var buffer = GetBuffer(this, ComponentType<T>.ComponentId);
 		return ref Unsafe.As<T[]>(buffer)[index];

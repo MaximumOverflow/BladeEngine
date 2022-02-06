@@ -2,8 +2,6 @@
 
 namespace BladeEngine.ECS;
 
-public interface IComponent {}
-
 public readonly struct ComponentType
 { 
 	internal int Id { get; init; }
@@ -17,7 +15,7 @@ public readonly struct ComponentType
 	internal static int GetId() => Interlocked.Increment(ref _id) - 1;
 }
 
-public struct ComponentType<T> where T : struct, IComponent
+public struct ComponentType<T> where T : struct
 {
 	public static readonly int ComponentId;
 

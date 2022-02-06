@@ -6,5 +6,7 @@ Core/bin/
 Core/obj/
 Editor/bin/
 Editor/obj/
+UnitTests/obj/
+UnitTests/bin/
 Extensions/bin/
 Extensions/obj/

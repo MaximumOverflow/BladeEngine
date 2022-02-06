@@ -8,16 +8,10 @@ public readonly struct Bitfield
 	internal readonly ulong[] Bits;
 	public int Capacity => Bits.Length * 64;
 
-	public Bitfield()
-	{
-		BitCount = 64;
-		Bits = new ulong[1];
-	}
-
 	public Bitfield(int minBitCount)
 	{
 		BitCount = minBitCount;
-		Bits = new ulong[(int) MathF.Ceiling((float) minBitCount / sizeof(ulong))];
+		Bits = new ulong[(int) MathF.Ceiling((float) minBitCount / 64)];
 	}
 
 	public Bitfield(in Bitfield other)
@@ -38,7 +32,7 @@ public readonly struct Bitfield
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		set
+		internal set
 		{
 			var i = index % 64;
 			ref var b = ref Bits[index / 64];

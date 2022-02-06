@@ -104,7 +104,7 @@ public sealed class EcsContext
 		return archetype;
 	}
 
-	public unsafe bool AddComponent<T>(in Entity entity, in T component = default) where T : struct, IComponent
+	public unsafe bool AddComponent<T>(in Entity entity, in T component = default) where T : struct
 	{
 		CheckThreadValidity();
 		CheckEntityValidity(entity);
@@ -153,7 +153,7 @@ public sealed class EcsContext
 		return true;
 	}
 	
-	public unsafe bool RemoveComponent<T>(in Entity entity) where T : struct, IComponent
+	public unsafe bool RemoveComponent<T>(in Entity entity) where T : struct
 	{
 		CheckThreadValidity();
 		CheckEntityValidity(entity);
@@ -198,16 +198,24 @@ public sealed class EcsContext
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public ref T GetComponentRef<T>(in Entity entity) where T : struct, IComponent
+	private ref T GetComponentRefUnsafe<T>(in Entity entity) where T : struct
 	{
 		CheckThreadValidity();
 		CheckEntityValidity(entity);
 		
 		var instance = entity.Instance;
-		if (instance.Slot is null) Throw();
+		if (instance.Slot is null || !instance.Slot.Chunk.Archetype.ComponentTypes[ComponentType<T>.ComponentId]) 
+			Throw();
+		
 		void Throw() => throw new InvalidOperationException("Component is not attached to the entity.");
 		return ref instance.Slot!.Chunk.GetComponentRefUnsafe<T>(instance.Slot.Slot);
 	}
+
+	public T GetComponent<T>(in Entity entity) where T : struct
+		=> GetComponentRefUnsafe<T>(in entity);
+	
+	public T SetComponent<T>(in Entity entity, in T value) where T : struct
+		=> GetComponentRefUnsafe<T>(in entity) = value;
 
 	public bool RegisterSystem(ISystem system)
 	{
@@ -278,6 +286,6 @@ public sealed class EcsContext
 	private void CheckEntityValidity(in Entity entity, string message = "Invalid entity")
 	{
 		if (entity.Version != entity.Instance.Version)
-			throw new InvalidDataException(message);
+			throw new InvalidOperationException(message);
 	}
 }
